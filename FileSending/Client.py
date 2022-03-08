@@ -3,9 +3,10 @@
 import socket
 import ssl
 
+
 # TODO:
 # Proper logging
-from time import sleep
+# Docs
 
 
 class Client:
@@ -15,8 +16,13 @@ class Client:
         self.context.verify_mode = ssl.CERT_NONE
         self.hostname = "127.0.0.1"
         self.port = 8443
+        self.secure_socket = ssl.SSLSocket
 
     def connect(self):
-        with socket.create_connection((self.hostname, self.port)) as sock:
-            with self.context.wrap_socket(sock, server_hostname=self.hostname) as secure_sock:
-                secure_sock.send(b"test")
+        sock = socket.create_connection((self.hostname, self.port))
+        self.secure_sock = self.context.wrap_socket(sock, server_hostname=self.hostname)
+        print(f"connected: {self.secure_sock.getpeername()}")
+
+    def send_file(self, file_bytes):
+        print("sending file")
+        self.secure_sock.send(file_bytes)

@@ -130,3 +130,4 @@ dmypy.json
 .idea/
 *.pdf
 *.txt
+test_files/

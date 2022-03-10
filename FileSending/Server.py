@@ -35,13 +35,13 @@ class Server:
         print(f"bound to {(self.hostname, self.port)}")
         self.secure_socket = self.context.wrap_socket(sock, server_side=True)
 
-    def start_listening(self):
+    def start_listening(self) -> socket.socket:
         print(f"receiving on {self.hostname, self.port}")
         conn, addr = self.secure_socket.accept()
         print(f"connected to {addr}")
         return conn
 
-    def receive(self, file_path, conn):
+    def receive(self, file_path: str, conn: socket.socket):
         # Header received
         raw_data = conn.recv(2048)
         len_end_flag_idx = raw_data.index(self.flags.end_len)
@@ -54,9 +54,11 @@ class Server:
         print("received header, waiting for file")
         # Remove header from useful data
         file_data = raw_data[len_end_flag_idx + len(self.flags.end_len):]
+        original_len = data_len
         data_len -= len(file_data)
 
         # Receive rest of useful data
+        yielded_value = 0
         while True:
             # print(data_len)
             try:
@@ -69,6 +71,11 @@ class Server:
                 break
             file_data += raw_data
             data_len -= len(raw_data)
+            # Do this without making calculations every round
+            received = round(data_len / original_len * 100)
+            if received % 5 == 0 and yielded_value != received:
+                yielded_value = received
+                yield received
         print("received file asking client to end connection")
         conn.send(self.flags.fin)
         save_file(file_path, file_data)

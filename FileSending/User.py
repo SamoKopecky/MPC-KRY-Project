@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
 import sys
-from time import sleep
 
 from Client import Client
 from Server import Server
 from FileUtils import read_file
 from Flags import Flags
+from datetime import datetime, timedelta
 
 
 # TODO:
-# Implement multithreading with server/client working at the same time or check out setblocking function
+# Implement multithreading with server/client working at the same time and multiple server connections
 
 class User:
     def __init__(self, port):
@@ -22,7 +22,12 @@ class User:
         server = Server(self.port, self.server_address, self.flags)
         server.init_sock()
         while True:
-            server.receive(location, server.start_listening())
+            begin = datetime.now().timestamp()
+            for done_percent in server.receive(location, server.start_listening()):
+                print(f"Received {done_percent}%")
+            now = datetime.now().timestamp()
+            duration = timedelta(seconds=(now - begin))
+            print(f"Done in {duration}")
 
     def send_file(self, hostname, file_path):
         client = Client(self.port, hostname, self.flags)
@@ -30,7 +35,7 @@ class User:
         client.send_file(read_file(file_path))
 
 
-user = User(8443)
+user = User(8444)
 
 
 def print_help():
@@ -47,6 +52,6 @@ if len(args) < 1:
 if args[0] == "-c":
     user.send_file('127.0.0.1', 'test_files/test.pdf')
 elif args[0] == "-s":
-    user.listen('test_files/test_2.pdf')
+    user.listen('test_files/test_received.pdf')
 else:
     print_help()

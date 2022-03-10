@@ -2,27 +2,33 @@
 
 import socket
 import ssl
+import sys
+from Flags import Flags
+
 
 # TODO:
 # Proper logging
 # Docs
-import sys
-
-# TODO:
 # use sendfile function
-from Flags import Flags
+# send file extensions
 
 
 class Client:
 
     def __init__(self, port: int, hostname: str, flags: Flags):
+        self.hostname = hostname
+        self.port = port
+        self.flags = flags
+
+        self.secure_sock = None
+        self.context = None
+
+        self.init_sock()
+
+    def init_sock(self):
         self.context = ssl.create_default_context()
         self.context.check_hostname = False
         self.context.verify_mode = ssl.CERT_NONE
-        self.hostname = hostname
-        self.port = port
-        self.secure_socket = ssl.SSLSocket
-        self.flags = flags
 
     def connect(self):
         sock = socket.create_connection((self.hostname, self.port))

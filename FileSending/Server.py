@@ -72,7 +72,7 @@ class Server:
             file_data += raw_data
             data_len -= len(raw_data)
             # Do this without making calculations every round
-            received = round(data_len / original_len * 100)
+            received = 100 - round(data_len / original_len * 100)
             if received % 5 == 0 and yielded_value != received:
                 yielded_value = received
                 yield received

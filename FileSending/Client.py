@@ -3,47 +3,43 @@
 import socket
 import ssl
 
-
 # TODO:
 # Proper logging
 # Docs
 import sys
-from time import sleep
 
 # TODO:
 # use sendfile function
+from Flags import Flags
 
 
 class Client:
-    len_begin_flag = b"LEN_B"
-    len_end_flag = b"LEN_E"
-    file_eof = b"FILE_EOF"
-    fin_flag = b"FIN"
 
-    def __init__(self, port):
+    def __init__(self, port: int, hostname: str, flags: Flags):
         self.context = ssl.create_default_context()
         self.context.check_hostname = False
         self.context.verify_mode = ssl.CERT_NONE
-        self.hostname = "127.0.0.1"
+        self.hostname = hostname
         self.port = port
         self.secure_socket = ssl.SSLSocket
+        self.flags = flags
 
     def connect(self):
         sock = socket.create_connection((self.hostname, self.port))
         self.secure_sock = self.context.wrap_socket(sock, server_hostname=self.hostname)
-        print(f"connected: {self.secure_sock.getpeername()}")
+        print(f"connected to {self.secure_sock.getpeername()}")
 
     def send_file(self, file_bytes):
-        print("sending file")
+        print("sending header + file")
         file_len = f"{len(file_bytes)}"
-        data_to_send = self.len_begin_flag + bytes(file_len, 'UTF-8') + self.len_end_flag + file_bytes + self.file_eof
+        data_to_send = self.flags.begin_len + bytes(file_len, 'UTF-8') + self.flags.end_len + file_bytes + \
+                       self.flags.file_end
         self.secure_sock.send(data_to_send)
         data = self.secure_sock.recv(2048)
-        if data == self.fin_flag:
+        if data == self.flags.fin:
+            print("ending connection")
             self.secure_sock.shutdown(socket.SHUT_WR)
             self.secure_sock.close()
         else:
             print("something went wrong")
             sys.exit(0)
-
-

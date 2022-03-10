@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
-
 import socket
 import ssl
 import sys
-from Flags import Flags
+from .Flags import Flags
 
 
 # TODO:

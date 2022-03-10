@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
-
 import ssl
 import socket
 import sys
+import os
 
-from FileUtils import save_file
-from Flags import Flags
+from .FileUtils import save_file
+from .Flags import Flags
 
 
 # TODO:
@@ -21,11 +20,12 @@ class Server:
         self.secure_socket = None
         self.hostname = hostname
         self.port = port
+        self.this_file = os.path.dirname(os.path.abspath(__file__))
         self.flags = flags
 
     def init_sock(self):
         self.context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-        self.context.load_cert_chain("certs/root.crt", "certs/root.key")
+        self.context.load_cert_chain(f"{self.this_file}/certs/root.crt", f"{self.this_file}/certs/root.key")
         self.context.check_hostname = False
         self.context.verify_mode = ssl.CERT_NONE
 
@@ -78,4 +78,4 @@ class Server:
                 yield received
         print("received file asking client to end connection")
         conn.send(self.flags.fin)
-        save_file(file_path, file_data)
+        save_file(f'{self.this_file}/{file_path}', file_data)

@@ -11,8 +11,7 @@ from .FileUtils import read_file
 from .Flags import Flags
 
 
-# TODO:
-# Implement multithreading with server/client working at the same time and multiple server connections
+
 
 class User:
     def __init__(self, port):

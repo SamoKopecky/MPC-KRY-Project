@@ -7,10 +7,8 @@ from datetime import datetime, timedelta
 
 from .Client import Client
 from .Server import Server
-from .FileUtils import read_file
+from .utils import read_file, test_files_dir
 from .Flags import Flags
-
-
 
 
 class User:
@@ -18,7 +16,6 @@ class User:
         self.flags = Flags(b"LEN_B", b"LEN_E", b"FILE_EOF", b"FIN")
         self.server_address = '0.0.0.0'
         self.port = port
-        self.this_file = os.path.dirname(os.path.abspath(__file__))
 
     def listen(self, location):
         server = Server(self.port, self.server_address, self.flags)
@@ -34,7 +31,7 @@ class User:
     def send_file(self, hostname, file_path):
         client = Client(self.port, hostname, self.flags)
         client.connect()
-        client.send_file(read_file(f'{self.this_file}/{file_path}'))
+        client.send_file(read_file(file_path))
 
 
 def test_user():
@@ -51,8 +48,8 @@ def test_user():
     if len(args) < 1:
         print_help()
     if args[0] == "-c":
-        user.send_file('127.0.0.1', 'test_files/movie.mkv')
+        user.send_file('127.0.0.1', f'{test_files_dir()}/test.txt')
     elif args[0] == "-s":
-        user.listen('test_files/movie_copied.mkv')
+        user.listen(f'{test_files_dir()}/received.txt')
     else:
         print_help()

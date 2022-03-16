@@ -3,7 +3,7 @@ import socket
 import sys
 import os
 
-from .FileUtils import save_file
+from .utils import save_file
 from .Flags import Flags
 
 
@@ -60,7 +60,6 @@ class Server:
         # Receive rest of useful data
         yielded_value = 0
         while True:
-            # print(data_len)
             try:
                 raw_data = conn.recv(2048)
             except (ConnectionResetError, TimeoutError):
@@ -78,4 +77,4 @@ class Server:
                 yield received
         print("received file asking client to end connection")
         conn.send(self.flags.fin)
-        save_file(f'{self.certs}/{file_path}', file_data)
+        save_file(file_path, file_data)

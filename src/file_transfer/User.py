@@ -3,11 +3,12 @@
 import sys
 import os
 
+from datetime import datetime, timedelta
+
 from .Client import Client
 from .Server import Server
 from .FileUtils import read_file
 from .Flags import Flags
-from datetime import datetime, timedelta
 
 
 # TODO:
@@ -37,9 +38,8 @@ class User:
         client.send_file(read_file(f'{self.this_file}/{file_path}'))
 
 
-if __name__ == "__main__":
+def test_user():
     user = User(8444)
-
 
     def print_help():
         # temporary
@@ -48,13 +48,12 @@ if __name__ == "__main__":
         -s  Start a server""")
         sys.exit(0)
 
-
     args = sys.argv[1:]
     if len(args) < 1:
         print_help()
     if args[0] == "-c":
-        user.send_file('127.0.0.1', 'test_files/test.pdf')
+        user.send_file('127.0.0.1', 'test_files/movie.mkv')
     elif args[0] == "-s":
-        user.listen('test_files/test_received.pdf')
+        user.listen('test_files/movie_copied.mkv')
     else:
         print_help()

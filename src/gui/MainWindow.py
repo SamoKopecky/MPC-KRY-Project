@@ -1,6 +1,6 @@
 import tkinter
 
-from file_sending.User import User
+from ..file_transfer.User import User
 
 
 class MainWindow(tkinter.Frame):

@@ -1,13 +1,13 @@
 import socket
 import ssl
 import sys
+
 from .Flags import Flags
 
 
 # TODO:
 # Proper logging
 # Docs
-# use sendfile function
 # send file extensions
 
 

@@ -20,12 +20,12 @@ class Server:
         self.secure_socket = None
         self.hostname = hostname
         self.port = port
-        self.this_file = os.path.dirname(os.path.abspath(__file__))
+        self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../../certs'
         self.flags = flags
 
     def init_sock(self):
         self.context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-        self.context.load_cert_chain(f"{self.this_file}/certs/root.crt", f"{self.this_file}/certs/root.key")
+        self.context.load_cert_chain(f"{self.certs}/root.crt", f"{self.certs}/root.key")
         self.context.check_hostname = False
         self.context.verify_mode = ssl.CERT_NONE
 
@@ -62,7 +62,7 @@ class Server:
         while True:
             # print(data_len)
             try:
-                raw_data = conn.recv(8192)
+                raw_data = conn.recv(2048)
             except (ConnectionResetError, TimeoutError):
                 print("Connection error")
                 break
@@ -78,4 +78,4 @@ class Server:
                 yield received
         print("received file asking client to end connection")
         conn.send(self.flags.fin)
-        save_file(f'{self.this_file}/{file_path}', file_data)
+        save_file(f'{self.certs}/{file_path}', file_data)

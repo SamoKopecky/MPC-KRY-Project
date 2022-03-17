@@ -16,7 +16,7 @@
 
 ## Database
 
-1. Rozbehnut `main.py` subor pre stlpce IP, meno uzivatelov
+1. Rozbehnut databazu pre stlpce IP, meno uzivatelov
 2. Pridat stlpce privatny kluc + certifikat uzivatela a certifikaty ostatnych uzivatelov
 
 ## GUI

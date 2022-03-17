@@ -5,14 +5,7 @@ import sys
 from .Flags import Flags
 
 
-# TODO:
-# Proper logging
-# Docs
-# send file extensions
-
-
 class Client:
-
     def __init__(self, port: int, hostname: str, flags: Flags):
         self.hostname = hostname
         self.port = port

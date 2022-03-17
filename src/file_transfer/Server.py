@@ -7,14 +7,7 @@ from .utils import save_file
 from .Flags import Flags
 
 
-# TODO:
-# File extension/make a header for file info
-# Proper logging
-# Docs
-
-
 class Server:
-
     def __init__(self, port: int, hostname: str, flags: Flags):
         self.context = ssl.SSLContext
         self.secure_socket = None

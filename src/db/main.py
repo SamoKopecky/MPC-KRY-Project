@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-print("test")
 from sqlcipher3 import dbapi2 as sqlcipher
 
 db = sqlcipher.connect("testing.db")

@@ -37,18 +37,20 @@ class Server:
     def receive(self, file_path: str, conn: socket.socket):
         # Header received
         raw_data = conn.recv(2048)
-        len_end_flag_idx = raw_data.index(self.flags.end_len)
+        header_end_flag_idx = raw_data.index(self.flags.name_end)
         if raw_data[:len(self.flags.begin_len)] == self.flags.begin_len:
-            data_len = int(raw_data[len(self.flags.begin_len):len_end_flag_idx])
+            header = raw_data[len(self.flags.begin_len):header_end_flag_idx]
         else:
             print('no file length received exiting')
             sys.exit(1)
 
+        file_len = int(header[:header.index(self.flags.end_len)])
+        file_name = header[header.index(self.flags.end_len) + len(self.flags.end_len):]
         print("received header, waiting for file")
         # Remove header from useful data
-        file_data = raw_data[len_end_flag_idx + len(self.flags.end_len):]
-        original_len = data_len
-        data_len -= len(file_data)
+        file_data = raw_data[header_end_flag_idx + len(self.flags.name_end ):]
+        original_len = file_len
+        file_len -= len(file_data)
 
         # Receive rest of useful data
         yielded_value = 0
@@ -62,12 +64,12 @@ class Server:
                 file_data += raw_data[:-len(self.flags.file_end)]
                 break
             file_data += raw_data
-            data_len -= len(raw_data)
+            file_len -= len(raw_data)
             # Do this without making calculations every round
-            received = 100 - round(data_len / original_len * 100)
+            received = 100 - round(file_len / original_len * 100)
             if received % 5 == 0 and yielded_value != received:
                 yielded_value = received
                 yield received
         print("received file asking client to end connection")
         conn.send(self.flags.fin)
-        save_file(file_path, file_data)
+        save_file(file_path + file_name.decode() + ".copy", file_data)

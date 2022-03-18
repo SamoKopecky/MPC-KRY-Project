@@ -2,7 +2,6 @@
 
 ## File Transfer
 
-1. Posielanie file extension v hlavicke prenosu
 1. Program dokaze posielat a vysielat naraz
 2. Prepojenie z databazov
     - posielanie suborov na IP adresu ulozenu v databazi

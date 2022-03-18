@@ -131,3 +131,5 @@ dmypy.json
 *.pdf
 *.txt
 test_files/
+files/
+*.db

@@ -10,7 +10,7 @@ from .Flags import Flags
 
 class User:
     def __init__(self, port):
-        self.flags = Flags(b"LEN_B", b"LEN_E", b"FILE_EOF", b"FIN")
+        self.flags = Flags(b"LEN_B", b"LEN_E", b"FILE_EOF", b"NAME_E", b"FIN")
         self.server_address = '0.0.0.0'
         self.port = port
 
@@ -28,7 +28,7 @@ class User:
     def send_file(self, hostname, file_path):
         client = Client(self.port, hostname, self.flags)
         client.connect()
-        client.send_file(read_file(file_path))
+        client.send_file(read_file(file_path), file_path.split("/")[-1])
 
 
 def test_user():
@@ -47,6 +47,6 @@ def test_user():
     if args[0] == "-c":
         user.send_file('127.0.0.1', f'{test_files_dir()}/test.txt')
     elif args[0] == "-s":
-        user.listen(f'{test_files_dir()}/received.txt')
+        user.listen(f'{test_files_dir()}/')
     else:
         print_help()

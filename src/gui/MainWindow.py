@@ -13,16 +13,14 @@ class MainWindow(tkinter.Frame):
         self.parent.resizable(True, True)
         self.parent.title("Application")
 
-        user = User(8443)
-
         def send():
-            user.send_file('127.0.0.1', 'test_files/test_received.pdf')
+            print("send")
 
         def functionOne():
             print(textFeildOne.get())
 
         def listen():
-            user.listen('test_files/test.pdf')
+            print("listen")
 
         tkinter.Label(self.parent, text="Cesta k souboru").grid(row=0)
         textFeildOne = tkinter.Entry(self.parent)

@@ -2,19 +2,34 @@ import ssl
 import socket
 import sys
 import os
+import threading
 
+from datetime import datetime, timedelta
 from .utils import save_file
 from .Flags import Flags
 
 
-class Server:
-    def __init__(self, port: int, hostname: str, flags: Flags):
+class Server(threading.Thread):
+    def __init__(self, port: int, hostname: str, flags: Flags, file_location: str):
+        super().__init__()
+        self.name = "ServerThread"
         self.context = ssl.SSLContext
         self.secure_socket = None
         self.hostname = hostname
         self.port = port
         self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../../certs'
         self.flags = flags
+        self.file_location = file_location
+
+    def run(self) -> None:
+        self.init_sock()
+        while True:
+            begin = datetime.now().timestamp()
+            for done_percent in self.receive(self.file_location, self.start_listening()):
+                print(f"Received {done_percent}%")
+            now = datetime.now().timestamp()
+            duration = timedelta(seconds=(now - begin))
+            print(f"Done in {duration}")
 
     def init_sock(self):
         self.context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)

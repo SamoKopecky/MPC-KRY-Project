@@ -5,9 +5,6 @@
 1. Prepojenie z databazov
     - posielanie suborov na IP adresu ulozenu v databazi
 2. Poslanie suboru aj ked je uzivatel offline
-3. Autentizacia uzivatelov
-   - Vytvorenie certifikatov
-   - Implemetacia autentizacie
 
 
 ## Database

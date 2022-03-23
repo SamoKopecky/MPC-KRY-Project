@@ -10,7 +10,7 @@ from .Flags import Flags
 
 
 class Server(threading.Thread):
-    def __init__(self, port: int, hostname: str, flags: Flags, file_location: str):
+    def __init__(self, port: int, hostname: str, flags: Flags, file_location: str, name: str):
         super().__init__()
         self.name = "ServerThread"
         self.context = ssl.SSLContext
@@ -20,6 +20,7 @@ class Server(threading.Thread):
         self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../../certs'
         self.flags = flags
         self.file_location = file_location
+        self.name = name
 
     def run(self) -> None:
         self.init_sock()
@@ -32,10 +33,11 @@ class Server(threading.Thread):
             print(f"Done in {duration}")
 
     def init_sock(self):
-        self.context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-        self.context.load_cert_chain(f"{self.certs}/root.crt", f"{self.certs}/root.key")
+        self.context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+        self.context.load_cert_chain(f"{self.certs}/{self.name}-cert.pem", f"{self.certs}/{self.name}.key")
+        self.context.load_verify_locations(f"{self.certs}/root.crt")
         self.context.check_hostname = False
-        self.context.verify_mode = ssl.CERT_NONE
+        self.context.verify_mode = ssl.CERT_REQUIRED
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         sock.bind((self.hostname, self.port))
@@ -63,7 +65,7 @@ class Server(threading.Thread):
         file_name = header[header.index(self.flags.end_len) + len(self.flags.end_len):]
         print("received header, waiting for file")
         # Remove header from useful data
-        file_data = raw_data[header_end_flag_idx + len(self.flags.name_end ):]
+        file_data = raw_data[header_end_flag_idx + len(self.flags.name_end):]
         original_len = file_len
         file_len -= len(file_data)
 

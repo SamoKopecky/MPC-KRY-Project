@@ -1,25 +1,28 @@
 import socket
 import ssl
 import sys
+import os
 
 from .Flags import Flags
 
 
 class Client:
-    def __init__(self, port: int, hostname: str, flags: Flags):
+    def __init__(self, port: int, hostname: str, flags: Flags, name):
         self.hostname = hostname
         self.port = port
         self.flags = flags
-
+        self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../../certs'
         self.secure_sock = None
         self.context = None
-
+        self.name = name
         self.init_sock()
 
     def init_sock(self):
         self.context = ssl.create_default_context()
+        self.context.load_cert_chain(f"{self.certs}/{self.name}-cert.pem", f"{self.certs}/{self.name}.key")
+        self.context.load_verify_locations(f"{self.certs}/root.crt")
         self.context.check_hostname = False
-        self.context.verify_mode = ssl.CERT_NONE
+        self.context.verify_mode = ssl.CERT_REQUIRED
 
     def connect(self):
         sock = socket.create_connection((self.hostname, self.port))

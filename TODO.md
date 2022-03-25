@@ -4,20 +4,23 @@
 
 1. Prepojenie z databazov
     - posielanie suborov na IP adresu ulozenu v databazi
-2. Poslanie suboru aj ked je uzivatel offline
+    - vyuzivanie certifikatov z database
+2. Prepojenie s GUI
+3. Poslanie suboru aj ked je uzivatel offline
 
 
 ## Database
 
 
-1. Pridat stlpce privatny kluc + certifikat uzivatela a certifikaty ostatnych uzivatelov
+1. Databasa zo z tabulkami
+    - Users -- id, IP, port, name -- viacej riadkov
+    - App -- id, root cert, private key, public cert -- len jeden riadok
 
 ## GUI
 
-1. Prepojenie z databazov
-    - Zobrazenie ulozenych IP adries + mien
-2. Vylepsit gui pre druhu cast projektu
-    - Dohodnut sa na vzhlade aplikacie
-    - Implementovat vzhlad aplikacie do GUI
+1. GUI
+    - Hlavne okno
+    - Okno s posielanim suborov
+    - Okno s primanim suborov
     
 

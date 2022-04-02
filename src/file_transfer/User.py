@@ -7,7 +7,7 @@ from .Flags import Flags
 
 class User:
     def __init__(self, port, name):
-        self.flags = Flags(b"LEN_B", b"LEN_E", b"FILE_EOF", b"NAME_E", b"FIN")
+        self.flags = Flags(b"HEADER_START", b"HEADER_END", b"DATA_END", b"FIN")
         self.server_address = '0.0.0.0'
         self.listen_port = port
         self.name = name

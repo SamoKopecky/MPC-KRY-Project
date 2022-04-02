@@ -2,8 +2,9 @@ from typing import NamedTuple
 
 
 class Flags(NamedTuple):
-    begin_len: bytes
-    end_len: bytes
-    file_end: bytes
-    name_end: bytes
-    fin: bytes
+    HEADER_START: bytes
+    HEADER_END: bytes
+    DATA_END: bytes
+    FIN: bytes
+
+

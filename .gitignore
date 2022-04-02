@@ -133,3 +133,4 @@ dmypy.json
 test_files/
 files/
 *.db
+certs/

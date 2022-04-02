@@ -3,7 +3,6 @@ import socket
 import os
 import threading
 
-from typing import Callable
 from .utils import save_file
 from .Flags import Flags
 
@@ -16,12 +15,12 @@ class Server(threading.Thread):
         self.port = port
         self.name = name
         self.flags = flags
-        self.file_location = "./"
+        self.file_location = "."
         self.secure_socket = None
         self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../../certs'
         self.handler = handler
         self.interface_gui_init = interface_gui_init
-        self.current_conn = socket.socket()
+        self.current_conn: socket
 
     def run(self) -> None:
         self.init_sock()
@@ -32,7 +31,6 @@ class Server(threading.Thread):
             self.start_listening()
             data_len, name, data = self.receive_header(self.current_conn)
             self.interface_gui_init(data_len, name)
-            self.receive_body(self.file_location, self.current_conn, data_len, name, data)
             for done_percent in self.receive_body(self.file_location, self.current_conn, data_len, name, data):
                 self.handler(done_percent)
 
@@ -87,7 +85,7 @@ class Server(threading.Thread):
         print("received file asking client to end connection")
         yield 100
         conn.send(self.flags.FIN)
-        save_file(file_path + file_name.decode() + ".copy", file_data)
+        save_file(f"{file_path}{os.sep}{file_name.decode()}", file_data)
 
     def parse_header(self, data: bytes) -> (int, str, bytes):
         # Header Format:

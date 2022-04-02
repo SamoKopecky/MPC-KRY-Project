@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 import sys
-import threading
 import tkinter
-from time import sleep
 from src.file_transfer.User import User
-from src.file_transfer.utils import test_files_dir
 from src.gui.MainWindow import MainWindow
 
 
@@ -29,8 +26,10 @@ def main():
         sys.exit(1)
 
     user = User(sys.argv[1], int(sys.argv[2]))
-    gui = MainWindow(tkinter.Tk(), user.send_file)
+    gui = MainWindow(tkinter.Tk(), user.send_file, sys.argv[1], int(sys.argv[2]))
     user.listen(gui.start_receive, gui.init_receive)
+    gui.server = user.server
+    print("started")
     gui.mainloop()
 
 

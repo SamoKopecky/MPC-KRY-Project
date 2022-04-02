@@ -3,27 +3,38 @@ import socket
 import os
 import threading
 
+from typing import Callable
 from .utils import save_file
 from .Flags import Flags
 
 
 class Server(threading.Thread):
-    def __init__(self, port: int, ip: str, flags: Flags, file_location: str, name: str):
+    def __init__(self, port, ip, flags: Flags, name: str, handler, interface_gui_init):
         super().__init__()
         self.context = ssl.SSLContext
         self.ip = ip
         self.port = port
         self.name = name
         self.flags = flags
-        self.file_location = file_location
+        self.file_location = "./"
         self.secure_socket = None
         self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../../certs'
+        self.handler = handler
+        self.interface_gui_init = interface_gui_init
+        self.current_conn = socket.socket()
 
     def run(self) -> None:
         self.init_sock()
         while True:
-            for done_percent in self.receive(self.file_location, self.start_listening()):
-                print(f"Received {done_percent}%")
+            # Receive header
+            # call gui init function, wait for button clicked -- do this in tinker
+            # for loop for yielding results
+            self.start_listening()
+            data_len, name, data = self.receive_header(self.current_conn)
+            self.interface_gui_init(data_len, name)
+            self.receive_body(self.file_location, self.current_conn, data_len, name, data)
+            for done_percent in self.receive_body(self.file_location, self.current_conn, data_len, name, data):
+                self.handler(done_percent)
 
     def init_sock(self):
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
@@ -38,35 +49,43 @@ class Server(threading.Thread):
         print(f"bound to {(self.ip, self.port)}")
         self.secure_socket = self.context.wrap_socket(sock, server_side=True)
 
-    def start_listening(self) -> socket.socket:
+    def start_listening(self):
         print(f"receiving on {self.ip, self.port}")
         conn, addr = self.secure_socket.accept()
         print(f"connected to {addr}")
-        return conn
+        self.current_conn = conn
 
-    def receive(self, file_path: str, conn: socket.socket):
-        # Header received
+    def is_fin(self, raw_data):
+        if raw_data[-len(self.flags.DATA_END):] == self.flags.DATA_END:
+            return True
+        return False
+
+    def receive_header(self, conn):
         raw_data = conn.recv(2048)
-        file_len, file_name, file_data = self.parse_header(raw_data)
+        return self.parse_header(raw_data)
+
+    def receive_body(self, file_path, conn, file_len, file_name, file_data):
+        raw_data = conn.recv(2048)
         original_len = file_len
         yielded_value = 0
-        while True:
+        while not self.is_fin(raw_data):
             try:
                 raw_data = conn.recv(2048)
             except (ConnectionResetError, TimeoutError):
                 print("Connection error")
                 break
-            if raw_data[-len(self.flags.DATA_END):] == self.flags.DATA_END:
+            if self.is_fin(raw_data):
                 file_data += raw_data[:-len(self.flags.DATA_END)]
                 break
             file_data += raw_data
             file_len -= len(raw_data)
             # Do this without making calculations every round
             received = 100 - round(file_len / original_len * 100)
-            if received % 5 == 0 and yielded_value != received:
+            if yielded_value != received and received != 100:
                 yielded_value = received
                 yield received
         print("received file asking client to end connection")
+        yield 100
         conn.send(self.flags.FIN)
         save_file(file_path + file_name.decode() + ".copy", file_data)
 
@@ -83,6 +102,3 @@ class Server(threading.Thread):
         file_len = int(header[:64], 2)
         file_name = header[64:]
         return file_len, file_name, file_data
-
-
-

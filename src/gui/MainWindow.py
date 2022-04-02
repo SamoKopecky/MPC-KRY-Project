@@ -1,251 +1,118 @@
 import tkinter
-from tkinter import HORIZONTAL
 import os
-from pathlib import Path
-from tkinter import ttk, messagebox
 import time
 
+from tkinter import HORIZONTAL, Label, Frame, Entry, Button, ttk, messagebox, IntVar
+from src.file_transfer.User import User
+from src.file_transfer.utils import test_files_dir
 
-class MainWindow(tkinter.Frame):
-    # cela cesta k souboru k odeslání
-    celaCesta = ""
+
+class MainWindow(Frame):
+    send_file_path = ""
+    socket_address = ""
+    save_dir = ""
     # vybrany uživatel z databaze
     vybranyUzivatel = ""
-    # zadana IP adresa
-    ipAdresa = ""
-    # vybrany adresar pro ulozeni pri prijmu souboru
-    vybranyAdresar = ""
 
-    def __init__(self, parent):
-
+    def __init__(self, parent, send_function):
         super().__init__(parent)
+        self.send_function = send_function
         self.parent = parent
         self.parent.minsize(100, 100)
         self.parent.maxsize(1000, 10000)
         self.parent.resizable(True, True)
         self.parent.title("Application")
 
-        def functionForFindFile():
-            self.parent.minsize(200, 100)
+        Label(self.parent, text="Adresář uložení: ").grid(row=0)
+        self.file_path_entry = Entry(self.parent)
+        self.file_path_entry.grid(row=0, column=1)
+        self.file_path_button = Button(self.parent, text="Zvolit", command=self.choose_save_dir)
+        self.file_path_button.grid(row=0, column=2, sticky='w')
 
-            self.celaCesta = str(e1.get())
+        Label(self.parent, text="Cesta k souboru: ").grid(row=1)
+        self.save_dir_entry = Entry(self.parent)
+        self.save_dir_entry.grid(row=1, column=1)
+        self.save_dir_button = Button(self.parent, text="Vyhledat", command=self.choose_send_file)
+        self.save_dir_button.grid(row=1, column=2, sticky='w')
 
-            with open(str(self.celaCesta), encoding='utf-8') as soubor:
-                obsahSouboru = soubor.read()
-                sizeSouboru = os.path.getsize(str(self.celaCesta))
-                cesta = Path(self.celaCesta)
-                cesta = cesta.parts
-                pozice = len(cesta) - 1
-                nazev = cesta[pozice]
+        Label(self.parent, text="Název: ").grid(row=2)
+        self.name_label = Label(self.parent, text="-")
+        self.name_label.grid(row=2, column=1)
+        Label(self.parent, text="Velkost: ").grid(row=3)
+        self.size_label = Label(self.parent, text="0 B")
+        self.size_label.grid(row=3, column=1)
 
-                vypis = 'NÁZEV: ' + nazev + ' VELIKOST: ' + str(sizeSouboru) + 'B'
+        Label(self.parent, text="Adresa socketu (IP:port): ").grid(row=4)
+        self.manual_address_entry = Entry(self.parent)
+        self.manual_address_entry.grid(row=4, column=1)
+        self.send_from_entry_button = Button(self.parent, text="Odeslat na socket",
+                                             command=self.choose_socket_addr)
+        self.send_from_entry_button.grid(row=4, column=2, sticky='w')
+        self.send_from_db_button = Button(self.parent, text="Odeslat z DB",
+                                          command=self.choose_db_addr)
+        self.send_from_db_button.grid(row=5, column=2, sticky='W')
 
-                tkinter.Label(self.parent, text=vypis).grid(row=1, column=1)
+        self.file_path_entry.insert(0, "/home")
+        self.save_dir_entry.insert(0, "/test.txt")
 
-        def functionForFindDirectory():
-            # CESTA DO ADRESARE
-            self.vybranyAdresar = str(e3.get())
+    def choose_send_file(self):
+        self.send_file_path = str(self.save_dir_entry.get())
+        self.size_label.configure(text=f"{os.path.getsize(self.send_file_path)} B")
+        self.name_label.configure(text=self.send_file_path.split(os.sep)[-1])
 
-        def functionForSendWithIPAdress():
-            self.parent.minsize(200, 100)
-            # ZDE SE VYPISE ZADANA IP ADRESA
-            self.ipAdresa = str(e2.get())
-            sendWithIP()
+    def choose_save_dir(self):
+        self.save_dir = str(self.file_path_entry.get())
 
-        def sendWithIP():
-            def step():
-                for i in range(5):
-                    slave.update_idletasks()
-                    zobrazeniProcentBeh['value'] += 20
+    def choose_socket_addr(self):
+        self.socket_address = str(self.manual_address_entry.get())
+        self.send_to_socket(self.socket_address)
 
-                    time.sleep(1)
-                    if (i == 4):
-                        vypisInformaci = "Soubor byl odeslán"
+    def choose_db_addr(self):
+        db_addr = "1.1.1.1:3"
+        self.send_to_socket(db_addr)
 
-                        ttk.Label(slave, text=vypisInformaci).pack()
+    def send_to_socket(self, socket_addr):
+        slave = tkinter.Tk()
+        slave.minsize(100, 100)
+        slave.maxsize(1000, 10000)
+        slave.title("Send file")
 
-            slave = tkinter.Tk()
-            slave.geometry('400x150+500+200')
-            slave.title("Send file")
+        Label(slave, text=f"Posielanie suboru: {self.name_label.cget('text')}").grid(row=0, sticky="w")
+        Label(slave, text=f"Adresa socketu: {socket_addr}").grid(row=1, sticky="w")
+        progress_bar = ttk.Progressbar(slave, orient=HORIZONTAL, length=100, mode='indeterminate')
+        progress_bar.grid(row=2)
 
-            cesta = Path(self.celaCesta)
-            cesta = cesta.parts
-            pozice = len(cesta) - 1
-            nazev = cesta[pozice]
+        slave.tkraise()
 
-            sizeSouboru = os.path.getsize(str(self.celaCesta))
-            vypln = ""
-            vypisNazvu = 'Odesílání souboru s názvem: ' + nazev + ' o velikosti:' + str(sizeSouboru) + 'B'
-            vypisInformaci = 'Soubor bude odeslán na zvolenou IP adresu: ' + self.ipAdresa
+        addr = socket_addr.split(":")
+        self.send_function(addr[0], int(addr[1]), self.send_file_path)
 
-            ttk.Label(slave, text=vypln).pack()
-            ttk.Label(slave, text=vypisNazvu).pack()
-            ttk.Label(slave, text=vypisInformaci).pack()
+    def init_receive(self, data_len, name):
+        watcher = IntVar()
+        slave = tkinter.Tk()
+        slave.minsize(100, 100)
+        slave.maxsize(1000, 10000)
+        slave.title("Receive file")
 
-            zobrazeniProcentBeh = ttk.Progressbar(slave, orient=HORIZONTAL, length=100, mode='indeterminate')
-            zobrazeniProcentBeh.pack(expand=True)
+        Label(slave, text="Adresář uložení: ").grid(row=0)
+        file_path_entry = Entry(slave)
+        file_path_entry.grid(row=0, column=1)
+        file_path_button = Button(slave, text="Jiný adresář", command=self.choose_save_dir)
+        file_path_button.grid(row=0, column=2, sticky='w')
+        if self.save_dir != "":
+            file_path_entry.insert(0, self.save_dir)
 
-            zobrazeniProcent = ttk.Button(slave, text='Odeslat', command=step)
-            zobrazeniProcent.pack()
+        Label(slave, text=f"Název: ").grid(row=2)
+        name_label = Label(slave, text=name.decode('UTF-8'))
+        name_label.grid(row=2, column=1)
+        Label(slave, text=f"Velkost: ").grid(row=3)
+        size_label = Label(slave, text=f"{data_len} B")
+        size_label.grid(row=3, column=1)
 
-        def functionForListbox():
-            def on_listbox_select(event):
-                pozice = listbox.curselection()[0]
-                # ZDE SE VYPISE VYBRANY UZIVATEL V DATABAZI PO STISKU NA NEJ
-                self.vybranyUzivatel = str(obsahSouboru[pozice])
-                print(obsahSouboru[pozice])
-                # KONTROLA ZDA BYL VYBRAN SOUBOR PRO ODESLANI
-                if (self.celaCesta == ""):
-                    messagebox.showerror("ERROR", "Nebyl vybrán žádný soubor k odeslání")
-                else:
-                    send()
-
-            root = tkinter.Tk()
-            root.minsize(100, 100)
-            root.maxsize(1000, 10000)
-            root.resizable(True, True)
-            root.title("Choose Users")
-
-            listbox = tkinter.Listbox(root)
-            # TŘEBA ZMĚNIT CESTU!!!!!
-            with open('soubor.txt', encoding='utf-8') as soubor:
-                obsahSouboru = soubor.read()
-
-            obsahSouboru = obsahSouboru.split("\n")
-            for lang in obsahSouboru:
-                listbox.insert(tkinter.END, lang)
-
-            listbox.bind("<<ListboxSelect>>", on_listbox_select)
-            quitButton = ttk.Button(root, text="Exit", command=exit)
-
-            listbox.pack()
-            quitButton.pack()
-
-        def send():
-            def step():
-                for i in range(5):
-                    slave.update_idletasks()
-                    # POCITANI PROCENT!!!
-                    zobrazeniProcentBeh['value'] += 20
-                    # USPANI ABY TO NEBYLO TAK RYCHLE
-                    time.sleep(1)
-                    if (i == 4):
-                        # POKUD SE ZMENI RANGE, MUSI SE ZMENIT I TATO PODMINKA, JINAK NEVYPISE
-                        # ZDA BYL PROCES DOKONCEN
-                        vypisInformaci = "Soubor byl odeslán"
-
-                        ttk.Label(slave, text=vypisInformaci).pack()
-
-            slave = tkinter.Tk()
-            slave.geometry('400x150+500+200')
-            slave.title("Send file")
-
-            cesta = Path(self.celaCesta)
-            cesta = cesta.parts
-            pozice = len(cesta) - 1
-            nazev = cesta[pozice]
-
-            sizeSouboru = os.path.getsize(str(self.celaCesta))
-            vypln = ""
-            vypisNazvu = 'Odesílání souboru s názvem: ' + nazev + ' o velikosti:' + str(sizeSouboru) + 'B'
-            vypisInformaci = 'Soubor bude odeslán: ' + self.vybranyUzivatel
-
-            ttk.Label(slave, text=vypln).pack()
-            ttk.Label(slave, text=vypisNazvu).pack()
-            ttk.Label(slave, text=vypisInformaci).pack()
-
-            zobrazeniProcentBeh = ttk.Progressbar(slave, orient=HORIZONTAL, length=100, mode='indeterminate')
-            zobrazeniProcentBeh.pack(expand=True)
-
-            zobrazeniProcent = ttk.Button(slave, text='Odeslat', command=step)
-            zobrazeniProcent.pack()
-
-        def functionForReceive():
-            def step():
-                for i in range(5):
-                    slave.update_idletasks()
-                    # OPET POCITANI PROCENT
-                    zobrazeniProcentBeh['value'] += 20
-                    # OPET USPANI, ABY TO SLO POMALEJI
-                    time.sleep(1)
-                    # A OPET TREBA ZMENIT, POKUD SE ZMENI RANGE!!!!
-                    # JINAK NEVYPISE INFO O KONCI PROCESU
-                    if (i == 4):
-                        vypisInformaci = "Soubor byl přijat"
-                        ttk.Label(slave, text=vypisInformaci).pack()
-
-            slave = tkinter.Tk()
-            slave.geometry('400x150+500+200')
-            slave.title("Send file")
-
-            vypln = ""
-
-            ttk.Label(slave, text=vypln).pack()
-
-            if (self.vybranyAdresar == ""):
-                vypisBezAdresare = "Zadejte adresář pro uložení souboru:"
-                ttk.Label(slave, text=vypisBezAdresare).pack()
-
-                adresar = tkinter.Entry(slave).pack()
-                self.vybranyAdresar = str(adresar)
-
-            else:
-                vypisInformaci = 'Soubor bude uložen do: ' + str(self.vybranyAdresar)
-                vypisBezAdresare = "Chcete-li změnit umístění uložení, zadejte cestu k novému adresáři:"
-                ttk.Label(slave, text=vypisInformaci).pack()
-                ttk.Label(slave, text=vypisBezAdresare).pack()
-                adresar = tkinter.Entry(slave).pack()
-
-                self.vybranyAdresar = str(adresar)
-
-            zobrazeniProcentBeh = ttk.Progressbar(slave, orient=HORIZONTAL, length=100, mode='indeterminate')
-            zobrazeniProcentBeh.pack(expand=True)
-
-            zobrazeniProcent = ttk.Button(slave, text='Přijmout', command=step)
-            zobrazeniProcent.pack()
-
-        # HLAVNI OKNO PROGRAMU
-        tkinter.Label(self.parent, text="Cesta k souboru").grid(row=0)
-        e1 = tkinter.Entry(self.parent)
-        e1.grid(row=0, column=1)
-
-        self.buttonOne = tkinter.Button(self.parent, text="Vyhledat", command=functionForFindFile)
-        self.buttonOne.grid(row=0, column=2, sticky='w')
-
-        tkinter.Label(self.parent, text="Cesta do adresáře").grid(row=2)
-        e3 = tkinter.Entry(self.parent)
-        e3.grid(row=2, column=1)
-
-        self.buttonOne = tkinter.Button(self.parent, text="Zvolit", command=functionForFindDirectory)
-        self.buttonOne.grid(row=2, column=2, sticky='w')
-
-        vypis = "Odeslat soubor:"
-
-        tkinter.Label(self.parent, text=vypis).grid(row=3, column=1)
-
-        tkinter.Label(self.parent, text="IP adresa, port").grid(row=4)
-        e2 = tkinter.Entry(self.parent)
-        e2.grid(row=4, column=1)
-
-        self.buttonOne = tkinter.Button(self.parent, text="Odeslat na zadanou IP adresu",
-                                        command=functionForSendWithIPAdress)
-        self.buttonOne.grid(row=4, column=2, sticky='w')
-
-        self.buttonTwo = tkinter.Button(self.parent, text="Odeslat uživateli v databázi", command=functionForListbox)
-        self.buttonTwo.grid(row=5, column=2, sticky='W')
-
-        vypis = "Přijmout soubor:"
-
-        tkinter.Label(self.parent, text=vypis).grid(row=6, column=1)
-
-        self.buttonThree = tkinter.Button(self.parent, text="Přijmout soubor", command=functionForReceive)
-        self.buttonThree.grid(row=7, column=1, sticky='s')
+        accept_button = Button(slave, text="Příjmout soubor", command=lambda: watcher.set(1))
+        accept_button.grid(row=4, column=0, sticky='w')
 
 
-def main():
-    root = tkinter.Tk()
-    app = MainWindow(root)
-    app.mainloop()
+    def start_receive(self, received):
+        print(received)
 
-
-main()

@@ -6,20 +6,19 @@ from .Flags import Flags
 
 
 class User:
-    def __init__(self, port, name):
+    def __init__(self, name, port):
         self.flags = Flags(b"HEADER_START", b"HEADER_END", b"DATA_END", b"FIN")
         self.server_address = '0.0.0.0'
         self.listen_port = port
         self.name = name
+        self.server: Server
+        self.client: Client
 
-    def listen(self, location):
-        server = Server(self.listen_port, self.server_address, self.flags, location, self.name)
-        server.start()
+    def listen(self, handler, init_func):
+        self.server = Server(self.listen_port, self.server_address, self.flags, self.name, handler, init_func)
+        self.server.start()
 
-    def send_file(self, hostname, file_path, port):
-        client = Client(port, hostname, self.flags, self.name)
-        client.connect()
-        client.send_file(read_file(file_path), file_path.split("/")[-1])
-
-
-
+    def send_file(self, hostname, port, file_path):
+        self.client = Client(port, hostname, self.flags, self.name)
+        self.client.connect()
+        self.client.send_file(read_file(file_path), file_path.split("/")[-1])

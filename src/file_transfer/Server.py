@@ -10,21 +10,22 @@ from .Flags import Flags
 class Server(threading.Thread):
     def __init__(self, port, ip, flags: Flags, name: str, handler, interface_gui_init):
         super().__init__()
-        self.context = ssl.SSLContext
+        self.event = threading.Event()
         self.ip = ip
         self.port = port
+        self.context = ssl.SSLContext
         self.name = name
         self.flags = flags
         self.file_location = "."
         self.secure_socket = None
         self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../../certs'
-        self.handler = handler
+        self.progress_handler = handler
         self.interface_gui_init = interface_gui_init
         self.current_conn: socket
 
     def run(self) -> None:
         self.init_sock()
-        while True:
+        while not self.event.is_set():
             # Receive header
             # call gui init function, wait for button clicked -- do this in tinker
             # for loop for yielding results
@@ -32,7 +33,7 @@ class Server(threading.Thread):
             data_len, name, data = self.receive_header(self.current_conn)
             self.interface_gui_init(data_len, name)
             for done_percent in self.receive_body(self.file_location, self.current_conn, data_len, name, data):
-                self.handler(done_percent)
+                self.progress_handler(done_percent)
 
     def init_sock(self):
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
@@ -66,16 +67,18 @@ class Server(threading.Thread):
         raw_data = conn.recv(2048)
         original_len = file_len
         yielded_value = 0
+        file = open(f"{file_path}{os.sep}{file_name.decode()}", 'wb')
+        file.write(file_data)
         while not self.is_fin(raw_data):
             try:
-                raw_data = conn.recv(2048)
+                raw_data = conn.recv(4096)
             except (ConnectionResetError, TimeoutError):
                 print("Connection error")
                 break
             if self.is_fin(raw_data):
-                file_data += raw_data[:-len(self.flags.DATA_END)]
+                file.write(raw_data[:-len(self.flags.DATA_END)])
                 break
-            file_data += raw_data
+            file.write(raw_data)
             file_len -= len(raw_data)
             # Do this without making calculations every round
             received = 100 - round(file_len / original_len * 100)
@@ -85,7 +88,6 @@ class Server(threading.Thread):
         print("received file asking client to end connection")
         yield 100
         conn.send(self.flags.FIN)
-        save_file(f"{file_path}{os.sep}{file_name.decode()}", file_data)
 
     def parse_header(self, data: bytes) -> (int, str, bytes):
         # Header Format:

@@ -9,6 +9,7 @@ def read_file(file_path) -> bytes:
 def save_file(file_path, file_bytes):
     file = open(file_path, 'wb')
     file.write(file_bytes)
+    file.close()
 
 
 def test_files_dir():

@@ -1,5 +1,7 @@
 import tkinter
 import os
+from threading import Thread
+from time import sleep
 
 from tkinter import Label, Frame, Entry, Button
 
@@ -19,6 +21,7 @@ class MainWindow(Frame):
         self.parent.resizable(True, True)
         self.parent.title(f"{name}:{port}")
         self.var = tkinter.IntVar()
+        self.confirm_label: Label
 
         Label(self.parent, text="Adresář uložení: ").grid(row=0)
         self.file_path_entry = Entry(self.parent)
@@ -62,12 +65,17 @@ class MainWindow(Frame):
         self.receive_button = Button(self.parent, text="Primat", command=lambda: self.var.set(1))
         self.receive_button.grid(row=8, column=2, sticky='w')
 
-        Label(self.parent, text=f"Percenta: ").grid(row=9)
+        Label(self.parent, text=f"Prijate: ").grid(row=9)
         self.percentage = Label(self.parent, text="0 %")
         self.percentage.grid(row=9, column=1)
 
+        Label(self.parent, text=f"Novy subor: ").grid(row=10)
+        self.new_file_label = Label(self.parent, text="nie")
+        self.new_file_label.grid(row=10, column=1)
+
         self.file_path_entry.insert(0, "/home/samo")
         self.save_dir_entry.insert(0, "/test.txt")
+        self.manual_address_entry.insert(0, "127.0.0.1:")
 
     def choose_send_file(self):
         self.send_file_path = str(self.save_dir_entry.get())
@@ -91,23 +99,31 @@ class MainWindow(Frame):
 
     def send_to_socket(self, socket_addr):
         slave = tkinter.Tk()
-        slave.minsize(100, 100)
         slave.maxsize(1000, 10000)
         slave.title("Send file")
 
         Label(slave, text=f"Posielanie suboru: {self.name_label.cget('text')}").grid(row=0, sticky="w")
         Label(slave, text=f"Adresa socketu: {socket_addr}").grid(row=1, sticky="w")
+        self.confirm_label = Label(slave, text="Prijate: ...")
+        self.confirm_label.grid(row=2)
+
+        slave.update()
 
         addr = socket_addr.split(":")
-        self.send_function(addr[0], int(addr[1]), self.send_file_path)
+        thread = Thread(target=self.send_function(addr[0], int(addr[1]), self.send_file_path))
+        thread.start()
+
+    def update_confirmation(self):
+        self.confirm_label.configure(text="Prijate: Ano")
 
     def init_receive(self, data_len, name):
         self.server.file_location = self.save_dir
         self.receive_size.configure(text=f"{data_len} B")
         self.receive_name.configure(text=f"{name.decode('UTF-8')}")
+        self.new_file_label.configure(text="Ano", fg="#f00")
         self.receive_button.wait_variable(self.var)
+        self.new_file_label.configure(text="nie", fg="#000")
         self.var.set(0)
-        print("test")
 
     def start_receive(self, received):
         self.percentage.configure(text=f"{received} %")

@@ -7,15 +7,16 @@ from .Flags import Flags
 
 
 class Client:
-    def __init__(self, port: int, ip: str, flags: Flags, name):
-        self.ip = ip
-        self.port = port
+    def __init__(self, flags: Flags, name):
+        self.ip = "0.0.0.0"
+        self.port = 0
         self.flags = flags
         self.name = name
         self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../../certs'
-        self.secure_sock = None
+        self.secure_sock: ssl.SSLSocket
         self.context = None
         self.init_sock()
+        self.confirm_func = print
 
     def init_sock(self):
         self.context = ssl.create_default_context()
@@ -32,10 +33,11 @@ class Client:
     def send_file(self, file_bytes, file_name):
         print("sending header + file")
         data_to_send = self.build_header(file_bytes, file_name)
-        self.secure_sock.send(data_to_send)
+        self.secure_sock.sendall(data_to_send)
         data = self.secure_sock.recv(2048)
         if data == self.flags.FIN:
             print("ending connection")
+            self.confirm_func()
             self.secure_sock.shutdown(socket.SHUT_WR)
             self.secure_sock.close()
         else:

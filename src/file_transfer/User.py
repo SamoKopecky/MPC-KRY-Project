@@ -12,13 +12,14 @@ class User:
         self.listen_port = port
         self.name = name
         self.server: Server
-        self.client: Client
+        self.client = Client(self.flags, self.name)
 
     def listen(self, handler, init_func):
         self.server = Server(self.listen_port, self.server_address, self.flags, self.name, handler, init_func)
         self.server.start()
 
     def send_file(self, hostname, port, file_path):
-        self.client = Client(port, hostname, self.flags, self.name)
+        self.client.ip = hostname
+        self.client.port = port
         self.client.connect()
         self.client.send_file(read_file(file_path), file_path.split("/")[-1])

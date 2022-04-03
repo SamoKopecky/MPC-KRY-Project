@@ -14,15 +14,14 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
 
+sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
 project = 'MPC-Project'
 copyright = '2022, Klára Blahušová, Petra Kajánková, Samuel Kopecký, Erik Kuna'
 author = 'Klára Blahušová, Petra Kajánková, Samuel Kopecký, Erik Kuna'
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -40,7 +39,6 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
-
 
 # -- Options for HTML output -------------------------------------------------
 

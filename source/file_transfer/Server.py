@@ -7,7 +7,7 @@ from .Flags import Flags
 
 
 class Server(threading.Thread):
-    def __init__(self, port, ip, flags: Flags, name: str, handler, interface_gui_init):
+    def __init__(self, port, ip, flags: Flags, name: str, progress_handler, interface_gui_init):
         super().__init__()
         self.stop_loop = threading.Event()
         self.ip = ip
@@ -17,7 +17,7 @@ class Server(threading.Thread):
         self.flags = flags
         self.file_location = "."
         self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../certs'
-        self.progress_handler = handler
+        self.progress_handler = progress_handler
         self.interface_gui_init = interface_gui_init
         self.secure_socket: ssl.SSLSocket
         self.current_conn: socket

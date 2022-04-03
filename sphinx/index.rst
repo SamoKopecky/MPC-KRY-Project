@@ -6,11 +6,14 @@
 Welcome to MPC-Project's documentation!
 =======================================
 
-Indices
--------
 
 * :ref:`genindex`
 * :ref:`search`
+
+.. toctree::
+   :maxdepth: 4
+
+   header
 
 Module index
 ------------
@@ -21,4 +24,5 @@ Module index
    source.db
    source.file_transfer
    source.gui
+
 

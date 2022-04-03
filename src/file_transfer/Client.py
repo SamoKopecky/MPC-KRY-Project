@@ -26,15 +26,15 @@ class Client:
     def connect(self, hostname, port):
         sock = socket.create_connection((hostname, port))
         self.secure_sock = self.context.wrap_socket(sock, server_hostname=hostname)
-        print(f"connected to {self.secure_sock.getpeername()}")
+        print(f"Connected to: {self.secure_sock.getpeername()}")
 
     def close_conn(self):
-        print("ending connection")
+        print("Terminating current connetion")
         self.secure_sock.shutdown(socket.SHUT_WR)
         self.secure_sock.close()
 
     def send_file(self, file_bytes, file_name):
-        print("sending header + file")
+        print("Sending header and file data")
         data_to_send = self.build_header(file_bytes, file_name)
         self.secure_sock.sendall(data_to_send)
         data = self.secure_sock.recv(2048)

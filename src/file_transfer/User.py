@@ -1,7 +1,5 @@
-from time import sleep
 from .Client import Client
 from .Server import Server
-from .utils import read_file, test_files_dir
 from .Flags import Flags
 
 
@@ -20,4 +18,6 @@ class User:
 
     def send_file(self, hostname, port, file_path):
         self.client.connect(hostname, port)
-        self.client.send_file(read_file(file_path), file_path.split("/")[-1])
+        file_name = file_path.split("/")[-1]
+        file_data = open(file_path, 'rb')
+        self.client.send_file(file_data.read(), file_name)

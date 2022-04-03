@@ -3,7 +3,6 @@ import socket
 import os
 import threading
 
-from .utils import save_file
 from .Flags import Flags
 
 
@@ -17,10 +16,10 @@ class Server(threading.Thread):
         self.name = name
         self.flags = flags
         self.file_location = "."
-        self.secure_socket = None
         self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../../certs'
         self.progress_handler = handler
         self.interface_gui_init = interface_gui_init
+        self.secure_socket: ssl.SSLSocket
         self.current_conn: socket
 
     def run(self) -> None:
@@ -47,15 +46,12 @@ class Server(threading.Thread):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         sock.bind((self.ip, self.port))
         sock.listen(5)
-        print(f"bound to {(self.ip, self.port)}")
         self.secure_socket = self.context.wrap_socket(sock, server_side=True)
 
-
     def start_listening(self):
-        print(f"receiving on {self.ip, self.port}")
-        conn, addr = self.secure_socket.accept()
-        print(f"connected to {addr}")
-        self.current_conn = conn
+        print(f"Listening on: {self.ip, self.port}")
+        self.current_conn, addr = self.secure_socket.accept()
+        print(f"New connection at: {addr}")
 
     def is_fin(self, raw_data):
         if raw_data[-len(self.flags.DATA_END):] == self.flags.DATA_END:
@@ -83,12 +79,11 @@ class Server(threading.Thread):
                 break
             file.write(raw_data)
             file_len -= len(raw_data)
-            # Do this without making calculations every round
             received = 100 - round(file_len / original_len * 100)
             if yielded_value != received and received != 100:
                 yielded_value = received
                 yield received
-        print("received file asking client to end connection")
+        print("Done receiving file, sending FIN")
         yield 100
         conn.send(self.flags.FIN)
 

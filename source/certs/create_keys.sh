@@ -25,7 +25,7 @@ create_cert() {
 	rm $NAME.csr root.srl
 	
 	cp $NAME.crt $NAME-cert.pem
-	echo "Genaring certificate chaine for ${NAME}"
+	echo "Generating certificate chain for ${NAME}"
 	cat root.crt >> $NAME-cert.pem
 }
 

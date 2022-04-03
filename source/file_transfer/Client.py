@@ -8,15 +8,24 @@ from .Flags import Flags
 
 class Client:
     def __init__(self, flags: Flags, name):
+        """
+        test test
+        :param flags:
+        :param name:
+        """
         self.flags = flags
         self.name = name
-        self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../../certs'
+        self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../certs'
         self.secure_sock: ssl.SSLSocket
         self.context = None
         self.init_sock()
         self.confirm_func = print
 
     def init_sock(self):
+        """
+        this is init socket function
+        :return:
+        """
         self.context = ssl.create_default_context()
         self.context.load_cert_chain(f"{self.certs}/{self.name}-cert.pem", f"{self.certs}/{self.name}.key")
         self.context.load_verify_locations(f"{self.certs}/root.crt")

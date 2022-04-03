@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import sys
-import tkinter
 
-from src.file_transfer.User import User
-from src.gui.MainWindow import MainWindow
+from source.file_transfer.Peer import Peer
+from source.gui.Gui import Gui
 
 
 def main():
@@ -11,16 +10,16 @@ def main():
         print("supply a name and port")
         sys.exit(1)
 
-    user = User(sys.argv[1], int(sys.argv[2]))
-    gui = MainWindow(tkinter.Tk(), user.send_file, sys.argv[1], int(sys.argv[2]))
-    user.client.confirm_func = gui.update_confirmation
-    user.listen(gui.progress_handler, gui.start_receive)
-    gui.server = user.server
+    peer = Peer(sys.argv[1], int(sys.argv[2]))
+    gui = Gui(peer.send_file, sys.argv[1], int(sys.argv[2]))
+    peer.client.confirm_func = gui.update_confirmation
+    peer.listen(gui.progress_handler, gui.start_receive)
+    gui.server = peer.server
     gui.mainloop()
     print("Closing sock by connecting from localhost")
-    user.server.event.set()
-    user.client.connect('127.0.0.1', user.server.port)
-    user.client.close_conn()
+    peer.server.stop_loop.set()
+    peer.client.connect('127.0.0.1', peer.server.port)
+    peer.client.close_conn()
 
 
 if __name__ == '__main__':

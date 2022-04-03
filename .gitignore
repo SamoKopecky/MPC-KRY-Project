@@ -127,10 +127,17 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Idea
 .idea/
-*.pdf
-*.txt
-test_files/
-files/
+
+# DB files
 *.db
-certs/
+
+# Generated certs
+*.crt
+*.pem
+*.key
+
+# Sphinx build folder
+_build

@@ -3,8 +3,14 @@ from .Server import Server
 from .Flags import Flags
 
 
-class User:
+class Peer:
     def __init__(self, name, port):
+        """
+        Constructor
+
+        :param str name: Name for certificate purposes
+        :param int port: Port the server listens on
+        """
         self.flags = Flags(b"HEADER_START", b"HEADER_END", b"DATA_END", b"FIN")
         self.server_address = '0.0.0.0'
         self.listen_port = port

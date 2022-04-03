@@ -1,11 +1,15 @@
 # TODOs
 
+1. Prezentacia
+2. Flow chart 
+3. Navod
+4. Check Windows compatibility
+
 ## File Transfer
 
 1. Prepojenie z databazov
     - posielanie suborov na IP adresu ulozenu v databazi
     - vyuzivanie certifikatov z database
-2. Prepojenie s GUI
 3. Poslanie suboru aj ked je uzivatel offline
 4. Dokumentacia v kode
 
@@ -20,9 +24,5 @@
 
 ## GUI
 
-1. GUI
-    - Hlavne okno
-    - Okno s posielanim suborov
-    - Okno s primanim suborov
-2. Dokumentacia v kode
+Done
 

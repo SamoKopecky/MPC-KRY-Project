@@ -9,14 +9,14 @@ from .Flags import Flags
 class Server(threading.Thread):
     def __init__(self, port, ip, flags: Flags, name: str, handler, interface_gui_init):
         super().__init__()
-        self.event = threading.Event()
+        self.stop_loop = threading.Event()
         self.ip = ip
         self.port = port
         self.context = ssl.SSLContext
         self.name = name
         self.flags = flags
         self.file_location = "."
-        self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../../certs'
+        self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../certs'
         self.progress_handler = handler
         self.interface_gui_init = interface_gui_init
         self.secure_socket: ssl.SSLSocket
@@ -24,12 +24,12 @@ class Server(threading.Thread):
 
     def run(self) -> None:
         self.init_sock()
-        while not self.event.is_set():
+        while not self.stop_loop.is_set():
             # Receive header
             # call gui init function, wait for button clicked -- do this in tinker
             # for loop for yielding results
             self.start_listening()
-            if self.event.is_set():
+            if self.stop_loop.is_set():
                 break
             data_len, name, data = self.receive_header(self.current_conn)
             self.interface_gui_init(data_len, name)

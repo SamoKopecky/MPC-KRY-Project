@@ -6,12 +6,13 @@ from threading import Thread
 from tkinter import Label, Frame, Entry, Button, messagebox
 
 
-class MainWindow(Frame):
+class Gui(Frame):
     send_file_path = ""
     socket_address = ""
     save_dir = ""
 
-    def __init__(self, parent, send_function, name, port):
+    def __init__(self, send_function, name, port):
+        parent = tkinter.Tk()
         super().__init__(parent)
         self.parent = parent
         self.title = f"{name}:{port}"
@@ -36,17 +37,17 @@ class MainWindow(Frame):
         self.receive_name = Label(self.parent, text="-")
         self.receive_size = Label(self.parent, text="0 B")
         self.receive_button = Button(self.parent, text="Přijmout soubor", command=lambda: self.receive_check.set(1))
-        self.percentage = Label(self.parent, text="0 %")
-        self.new_file_label = Label(self.parent, text="nie")
+        self.percentage = Label(self.parent, text="0%")
+        self.new_file_label = Label(self.parent, text="Ne")
         self.create_layout()
 
         self.send_function = send_function
         self.server = None
 
-        # Temporary, delete later !
-        # self.file_path_entry.insert(0, "/home/samo")
-        # self.save_dir_entry.insert(0, "/test.txt")
-        # self.manual_address_entry.insert(0, "127.0.0.1:")
+        # Temporary, delete later!
+        self.file_path_entry.insert(0, "/home/samo/receive")
+        self.save_dir_entry.insert(0, "/home/samo/send/test.txt")
+        self.manual_address_entry.insert(0, "127.0.0.1:")
 
     def create_layout(self):
         # 0
@@ -55,11 +56,11 @@ class MainWindow(Frame):
         self.file_path_button.grid(row=0, column=2, sticky='w')
 
         # 1
-        Label(self.parent, text="Ulozený adresář ").grid(row=1)
+        Label(self.parent, text="Uložený adresář: ").grid(row=1)
         self.saved_path_entry.grid(row=1, column=1)
 
         # 2
-        Label(self.parent, text="Cesta k souboru ").grid(row=2)
+        Label(self.parent, text="Cesta k souboru: ").grid(row=2)
         self.save_dir_entry.grid(row=2, column=1)
         self.save_dir_button.grid(row=2, column=2, sticky='w')
 
@@ -90,7 +91,7 @@ class MainWindow(Frame):
         self.receive_button.grid(row=8, column=2, sticky='w')
 
         # 9
-        Label(self.parent, text=f"Přijatých percent: ").grid(row=9)
+        Label(self.parent, text=f"Přijatých procent: ").grid(row=9)
         self.percentage.grid(row=9, column=1)
 
         # 10
@@ -156,7 +157,7 @@ class MainWindow(Frame):
         thread.start()
 
     def update_confirmation(self):
-        self.confirm_label.configure(text="Ano", fg="#319e12")
+        self.confirm_label.configure(text="Ano", fg="#319e12")  # Green
 
     def start_receive(self, data_len, name):
         if self.save_dir == "":
@@ -165,17 +166,17 @@ class MainWindow(Frame):
         self.server.file_location = self.save_dir
         self.receive_size.configure(text=f"{data_len} B")
         self.receive_name.configure(text=f"{name.decode('UTF-8')}")
-        self.new_file_label.configure(text="Ano", fg="#ff0000")
+        self.new_file_label.configure(text="Ano", fg="#ff0000")  # Red
         self.receive_button.wait_variable(self.receive_check)
-        self.new_file_label.configure(text="nie", fg="#000000")
+        self.new_file_label.configure(text="Ne", fg="#000000")  # Black
         self.receive_check.set(0)
 
     def progress_handler(self, received):
-        self.percentage.configure(text=f"{received} %")
+        self.percentage.configure(text=f"{received}%")
 
     @staticmethod
     def error(text):
-        messagebox.showerror("ERROR", text)
+        messagebox.showerror("Chyba", text)
 
     @staticmethod
     def good_addr(addr):

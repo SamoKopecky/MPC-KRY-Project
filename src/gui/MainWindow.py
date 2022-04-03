@@ -21,7 +21,7 @@ class MainWindow(Frame):
         self.parent.resizable(True, True)
         self.parent.title(f"{name}:{port}")
         self.var = tkinter.IntVar()
-        self.confirm_label: Label
+        self.confirm_label: Label()
 
         Label(self.parent, text="Adresář uložení: ").grid(row=0)
         self.file_path_entry = Entry(self.parent)

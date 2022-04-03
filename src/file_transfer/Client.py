@@ -8,8 +8,6 @@ from .Flags import Flags
 
 class Client:
     def __init__(self, flags: Flags, name):
-        self.ip = "0.0.0.0"
-        self.port = 0
         self.flags = flags
         self.name = name
         self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../../certs'
@@ -25,10 +23,15 @@ class Client:
         self.context.check_hostname = False
         self.context.verify_mode = ssl.CERT_REQUIRED
 
-    def connect(self):
-        sock = socket.create_connection((self.ip, self.port))
-        self.secure_sock = self.context.wrap_socket(sock, server_hostname=self.ip)
+    def connect(self, hostname, port):
+        sock = socket.create_connection((hostname, port))
+        self.secure_sock = self.context.wrap_socket(sock, server_hostname=hostname)
         print(f"connected to {self.secure_sock.getpeername()}")
+
+    def close_conn(self):
+        print("ending connection")
+        self.secure_sock.shutdown(socket.SHUT_WR)
+        self.secure_sock.close()
 
     def send_file(self, file_bytes, file_name):
         print("sending header + file")
@@ -36,10 +39,8 @@ class Client:
         self.secure_sock.sendall(data_to_send)
         data = self.secure_sock.recv(2048)
         if data == self.flags.FIN:
-            print("ending connection")
             self.confirm_func()
-            self.secure_sock.shutdown(socket.SHUT_WR)
-            self.secure_sock.close()
+            self.close_conn()
         else:
             print("something went wrong")
             sys.exit(0)

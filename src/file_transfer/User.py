@@ -19,7 +19,5 @@ class User:
         self.server.start()
 
     def send_file(self, hostname, port, file_path):
-        self.client.ip = hostname
-        self.client.port = port
-        self.client.connect()
+        self.client.connect(hostname, port)
         self.client.send_file(read_file(file_path), file_path.split("/")[-1])

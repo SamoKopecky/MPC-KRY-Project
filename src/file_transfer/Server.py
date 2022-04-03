@@ -30,6 +30,8 @@ class Server(threading.Thread):
             # call gui init function, wait for button clicked -- do this in tinker
             # for loop for yielding results
             self.start_listening()
+            if self.event.is_set():
+                break
             data_len, name, data = self.receive_header(self.current_conn)
             self.interface_gui_init(data_len, name)
             for done_percent in self.receive_body(self.file_location, self.current_conn, data_len, name, data):
@@ -47,6 +49,7 @@ class Server(threading.Thread):
         sock.listen(5)
         print(f"bound to {(self.ip, self.port)}")
         self.secure_socket = self.context.wrap_socket(sock, server_side=True)
+
 
     def start_listening(self):
         print(f"receiving on {self.ip, self.port}")

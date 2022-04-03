@@ -6,16 +6,19 @@
 Welcome to MPC-Project's documentation!
 =======================================
 
-Indices and tables
-------------------
+Indices
+-------
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
-
+Module index
+------------
 .. toctree::
    :maxdepth: 4
-   :caption: Contents:
 
+   source.app
+   source.db
+   source.file_transfer
+   source.gui
 

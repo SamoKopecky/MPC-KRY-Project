@@ -1,13 +1,13 @@
-db package
-==========
+source.gui package
+==================
 
 Submodules
 ----------
 
-db.main module
---------------
+source.gui.Gui module
+---------------------
 
-.. automodule:: db.main
+.. automodule:: source.gui.Gui
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ db.main module
 Module contents
 ---------------
 
-.. automodule:: db
+.. automodule:: source.gui
    :members:
    :undoc-members:
    :show-inheritance:

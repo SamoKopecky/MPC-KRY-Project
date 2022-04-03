@@ -1,13 +1,13 @@
-gui package
-===========
+source.app package
+==================
 
 Submodules
 ----------
 
-gui.Gui module
---------------
+source.app.App module
+---------------------
 
-.. automodule:: gui.Gui
+.. automodule:: source.app.App
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ gui.Gui module
 Module contents
 ---------------
 
-.. automodule:: gui
+.. automodule:: source.app
    :members:
    :undoc-members:
    :show-inheritance:

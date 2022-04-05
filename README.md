@@ -1,11 +1,34 @@
-# MPC-KRY-Projekt
+# MPC-KRY-Project
 
-## FileSending
-- spustenie z `./app.py`
-- treba vygenerovat certifikaty so skriptom v zlozke `certs` pre 2 mena
-- pri spustati programu je potrebne zadat rovnake mena ako pri vytvarani certifikatov
+School project for BUTs MPC-KRY subject.
 
-Header format:
+# How to run
 
-| HEADER_START | FILE_LENGHT [64bit] | FILE_NAME | HEADER_END | DATA | DATA_END | FIN |
-|:------------:|:-------------------:|:---------:|:----------:|:----:|:--------:|:---:|
+- Before installing dependencies it is recommended to create a virtual environment, refer
+  to [guides below](#how-to-create-a-virtual-environment)
+- Install `tkinter` dependency based on which OS you are on:
+    - Debian/Ubuntu `apt-get install python3-tk`
+    - Fedora/RHEL: `dnf install python3-tkinter`
+    - Windows: `tkinter` should be packaged with the standard python library
+- Install dependencies by running `pip3 install -r requirements.py` in the project root directory
+- Run by launching the `source/app.py` file
+    - Linux: `./app.py`
+    - Windows: `python3 app.py`
+
+## How to create a virtual environment
+
+### Linux
+
+- Create a virtual environment with `python3 -m venv path/to/myenv`
+- Start using venv with `source path/to/myenv/bin/activate`
+
+### Windows
+
+- Create a virtual environment with `python3 -m venv c:\path\to\myenv`
+- Start using venv with `TODO`
+
+# Documentation
+
+- You can browse the documentation either in code or by visiting [this](http://172.105.249.59:6060/index.html) website
+- The hosted documentation is created using [shpinx](https://www.sphinx-doc.org/en/master/)
+    - Configuration files for creating the documentation are in the `sphinx` folder 

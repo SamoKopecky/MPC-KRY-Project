@@ -2,7 +2,6 @@ import os
 import socket
 import tkinter
 
-from threading import Thread
 from tkinter import Label, Frame, Entry, Button, messagebox
 
 
@@ -21,6 +20,8 @@ class MainGui(Frame):
         self.save_dir_check = tkinter.IntVar()
         self.addr_check = tkinter.IntVar()
         self.confirm_label: Label
+        self.available_label: Label
+        self.unavailable_label: Label
         self.send_file_path = ""
         self.socket_address = ""
         self.save_dir = ""
@@ -176,19 +177,36 @@ class MainGui(Frame):
         Label(slave, text=self.name_label.cget('text')).grid(row=0, column=1, sticky="w")
         Label(slave, text="Adresa socketu: ").grid(row=1, sticky="w")
         Label(slave, text=socket_addr).grid(row=1, column=1, sticky="w")
-        Label(slave, text=f"Potvrzení od cíle: ").grid(row=2, sticky="w")
+        Label(slave, text=f"Je peer dostupný: ").grid(row=2, sticky="w")
+        self.available_label = Label(slave, text="...")
+        self.available_label.grid(row=2, column=1, sticky="w")
+        Label(slave, text=f"Potvrzení od cíle: ").grid(row=3, sticky="w")
         self.confirm_label = Label(slave, text="...")
-        self.confirm_label.grid(row=2, column=1, sticky="w")
+        self.confirm_label.grid(row=3, column=1, sticky="w")
+        self.unavailable_label = Label(slave, text="")
         slave.update()
 
-        thread = Thread(target=self.send_function(ip, port, self.send_file_path))
-        thread.start()
+        self.send_function(ip, port, self.send_file_path, slave.update)
 
     def update_confirmation(self):
         """
         GUI update function for the `client` peer when FIN flag was received
         """
         self.confirm_label.configure(text="Ano", fg="#319e12")  # Green
+
+    def update_availability(self, available):
+        """
+        GUI update function for the peer checking the availability of
+        the other peer
+
+        :param bool available: If the peer is available
+        """
+        if available:
+            self.available_label.configure(text="Ano", fg="#319e12")  # Green
+        else:
+            self.available_label.configure(text="Ne", fg="#ff0000")  # Red
+            self.unavailable_label.grid(row=4, columnspan=2)
+            self.unavailable_label.configure(text="Peer je nedostupný, posílaní souboru v pozadí")
 
     def start_receive(self, data_len, name):
         """

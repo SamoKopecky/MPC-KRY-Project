@@ -11,6 +11,7 @@ class Server(threading.Thread):
     Handle the server side of the peer. It is not a standalone
     server application.
     """
+
     def __init__(self, port, ip, flags: Flags, name: str, progress_handler, interface_gui_init):
         super().__init__()
         self.stop_loop = threading.Event()
@@ -31,8 +32,9 @@ class Server(threading.Thread):
         Listen for new connections and handle them until a stop event is set
 
         Stop event is set when the main gui window exists to make sure no
-        threads are hanging. Also handle the newly created connections by
+        threads are hanging. Handle the newly created connections by
         receiving progress percentages from the receive_body function.
+        Also handle heartbeat messages.
         """
         self.init_sock()
         while not self.stop_loop.is_set():
@@ -42,7 +44,10 @@ class Server(threading.Thread):
             self.start_listening()
             if self.stop_loop.is_set():
                 break
-            data_len, name, data = self.receive_header(self.current_conn)
+            initial_msg = self.current_conn.recv(2048)
+            if self.receive_heartbeat(initial_msg):
+                continue
+            data_len, name, data = self.parse_header(initial_msg)
             self.interface_gui_init(data_len, name)
             for done_percent in self.receive_body(self.file_location, self.current_conn, data_len, name, data):
                 self.progress_handler(done_percent)
@@ -74,6 +79,19 @@ class Server(threading.Thread):
         self.current_conn, addr = self.secure_socket.accept()
         print(f"New connection at: {addr}")
 
+    def receive_heartbeat(self, initial_msg):
+        """
+        Check if the received data is a heartbeat
+
+        :param bytes initial_msg:
+        :return: Was the msg a heartbeat msg
+        """
+        if initial_msg == self.flags.HEARTBEAT:
+            print("Received heartbeat message, sending response")
+            self.current_conn.send(self.flags.HEARTBEAT)
+            return True
+        return False
+
     def is_data_end(self, raw_data):
         """
         Check if the final sequence of bytes is a DATA_END flag
@@ -88,17 +106,6 @@ class Server(threading.Thread):
         if raw_data[-len(self.flags.DATA_END):] == self.flags.DATA_END:
             return True
         return False
-
-    def receive_header(self, conn):
-        """
-        Receive the initial header from a data stream
-
-        :param socket.socket conn: Socket the connection was accepted with
-        :return: Parsed information from the header
-        :rtype: (int, str, bytes)
-        """
-        raw_data = conn.recv(2048)
-        return self.parse_header(raw_data)
 
     def receive_body(self, file_path, conn, file_len, file_name, file_data):
         """
@@ -117,7 +124,7 @@ class Server(threading.Thread):
         raw_data = conn.recv(4096)
         original_len = file_len
         yielded_value = 0
-        file = open(f"{file_path}{os.sep}{file_name.decode()}", 'wb')
+        file = open(f"{file_path}{os.sep}{file_name.decode('UTF-8')}", 'wb')
         file.write(file_data)
         while not self.is_data_end(raw_data):
             try:
@@ -144,7 +151,7 @@ class Server(threading.Thread):
 
         :param bytes data: initial received data
         :return: file length, file name, file data
-        :rtype: (int, str, bytes)
+        :rtype: (int, bytes, bytes)
         """
         if self.flags.HEADER_START not in data:
             exit(1)

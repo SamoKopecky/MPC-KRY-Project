@@ -9,7 +9,7 @@
 1. Prepojenie z databazov
     - posielanie suborov na IP adresu ulozenu v databazi
     - vyuzivanie certifikatov z database
-3. Poslanie suboru aj ked je uzivatel offline
+2. Proper logging
 
 
 ## Database

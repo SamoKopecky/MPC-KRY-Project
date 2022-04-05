@@ -20,6 +20,7 @@ class Client:
         self.context = None
         self.init_sock()
         self.confirm_func = print
+        self.available_func = print
 
     def init_sock(self):
         """
@@ -34,14 +35,16 @@ class Client:
         self.context.check_hostname = False
         self.context.verify_mode = ssl.CERT_REQUIRED
 
-    def connect(self, hostname, port):
+    def connect(self, hostname, port, timeout=120):
         """
         Make a new connection to the socket created from function parameters.
 
         :param str hostname: IP address of the target
         :param int port: port of the target
+        :param int timeout: After how many seconds will the socket timeout
         """
         sock = socket.create_connection((hostname, port))
+        sock.settimeout(timeout)
         self.secure_sock = self.context.wrap_socket(sock, server_hostname=hostname)
         print(f"Connected to: {self.secure_sock.getpeername()}")
 
@@ -49,9 +52,37 @@ class Client:
         """
         Close the connection created by the `connect` function
         """
-        print("Terminating current connetion")
+        print("Terminating current connection")
         self.secure_sock.shutdown(socket.SHUT_WR)
         self.secure_sock.close()
+
+    def send_heartbeat(self, hostname, port, timeout):
+        """
+        Send a heartbeat message to the other peer and check if he received it
+
+        :param str hostname: IP address of the target
+        :param int port: port of the target
+        :param int timeout: After how many seconds is the heartbeat considered dead
+        :return: Was the heartbeat successful
+        :rtype: bool
+        """
+        try:
+            self.connect(hostname, port, timeout)
+        except ConnectionRefusedError:
+            print("Connection refused")
+            return False
+        self.secure_sock.send(self.flags.HEARTBEAT)
+        print("Sending heartbeat message")
+        try:
+            received = self.secure_sock.recv(2048)
+        except socket.timeout:
+            print("Connection timeout")
+            return False
+        if received == self.flags.HEARTBEAT:
+            print("Received heartbeat back")
+            self.available_func(True)
+            self.close_conn()
+            return True
 
     def send_file(self, file_bytes, file_name):
         """

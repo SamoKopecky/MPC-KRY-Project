@@ -76,7 +76,7 @@ class Client:
 
     def build_message(self, file_bytes, file_name):
         """
-        Build the message defined in :doc:`header` on the main page
+        Build the message defined in :doc:`header`
 
         :param bytes file_bytes: encoded bytes of the file contents
         :param str file_name: name of the file

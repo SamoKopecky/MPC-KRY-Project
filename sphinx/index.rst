@@ -22,7 +22,7 @@ Module index
 
    source.app
    source.db
-   source.file_transfer
+   source.peer
    source.gui
 
 

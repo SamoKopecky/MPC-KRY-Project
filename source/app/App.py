@@ -1,5 +1,5 @@
-from ..gui.Gui import Gui
-from ..file_transfer.Peer import Peer
+from ..gui.MainGui import MainGui
+from ..peer.Peer import Peer
 
 
 class App:
@@ -19,7 +19,7 @@ class App:
         The main thread ends if the GUI part of the applications exists.
         """
         peer = Peer(self.name, self.port)
-        gui = Gui(peer.send_file, self.name, self.port)
+        gui = MainGui(peer.send_file, self.name, self.port)
         peer.client.confirm_func = gui.update_confirmation
         peer.listen(gui.progress_handler, gui.start_receive)
         gui.server = peer.server

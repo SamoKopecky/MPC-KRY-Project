@@ -4,10 +4,10 @@ source.db package
 Submodules
 ----------
 
-source.db.main module
----------------------
+source.db.Database module
+-------------------------
 
-.. automodule:: source.db.main
+.. automodule:: source.db.Database
    :members:
    :undoc-members:
    :show-inheritance:

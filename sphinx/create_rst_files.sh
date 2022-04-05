@@ -1,3 +1,4 @@
 #/bin/bash
 
-sphinx-apidoc -o . ../source
+sphinx-apidoc -o . ../
+rm app.rst

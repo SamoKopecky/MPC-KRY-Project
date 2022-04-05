@@ -6,10 +6,10 @@ from threading import Thread
 from tkinter import Label, Frame, Entry, Button, messagebox
 
 
-class Gui(Frame):
-    send_file_path = ""
-    socket_address = ""
-    save_dir = ""
+class MainGui(Frame):
+    """
+    Define the GUI of the application
+    """
 
     def __init__(self, send_function, name, port):
         parent = tkinter.Tk()
@@ -21,6 +21,9 @@ class Gui(Frame):
         self.save_dir_check = tkinter.IntVar()
         self.addr_check = tkinter.IntVar()
         self.confirm_label: Label
+        self.send_file_path = ""
+        self.socket_address = ""
+        self.save_dir = ""
         # Initialize all required elements
         self.file_path_entry = Entry(self.parent)
         self.file_path_button = Button(self.parent, text="Zvolit", command=self.choose_save_dir)
@@ -50,6 +53,9 @@ class Gui(Frame):
         self.manual_address_entry.insert(0, "127.0.0.1:")
 
     def create_layout(self):
+        """
+        Set the grid layout for all the gui elements
+        """
         # 0
         Label(self.parent, text="Adresář uložení: ").grid(row=0)
         self.file_path_entry.grid(row=0, column=1)
@@ -99,8 +105,11 @@ class Gui(Frame):
         self.new_file_label.grid(row=10, column=1)
 
     def choose_send_file_path(self):
+        """
+        Extracts, checks and saves the file path of the file to be sent
+        """
         new_path = str(self.save_dir_entry.get())
-        if not self.good_path(new_path):
+        if not self.valid_path(new_path):
             self.error("Neplatná cesta!")
             return
         self.send_file_path = new_path
@@ -108,8 +117,11 @@ class Gui(Frame):
         self.name_label.configure(text=self.send_file_path.split(os.sep)[-1])
 
     def choose_save_dir(self):
+        """
+        Extracts, checks and saves the directory path for saving received files
+        """
         new_path = str(self.file_path_entry.get())
-        if not self.good_path(new_path):
+        if not self.valid_path(new_path):
             self.error("Neplatná cesta!")
             return
         elif new_path[-1] == os.sep:
@@ -121,17 +133,33 @@ class Gui(Frame):
             self.receive_check.set(0)
 
     def choose_socket_addr(self):
+        """
+        Extracts and saves the manual socket address
+        """
         self.addr_check.set(1)
         self.socket_address = str(self.manual_address_entry.get())
         self.send_to_socket(self.socket_address)
         self.addr_check.set(0)
 
     def choose_db_addr(self):
+        """
+        TODO
+        """
         db_addr = "1.1.1.1:3"
         self.send_to_socket(db_addr)
 
     def send_to_socket(self, socket_addr):
-        if not self.good_addr(socket_addr):
+        """
+        Check and send file to the socket address, create new GUI part
+
+        Is called by the `client` part of the peer when sending a file.
+        Validate the socket address and whether a the file path was chosen.
+        Create a new GUI window for displaying what file is being sent and whether
+        a confirmation from the other peer was received.
+
+        :param str socket_addr: destination socket for the file
+        """
+        if not self.valid_addr(socket_addr):
             self.error("Špatně zadána adresa!")
             return
         addr = socket_addr.split(":")
@@ -157,9 +185,20 @@ class Gui(Frame):
         thread.start()
 
     def update_confirmation(self):
+        """
+        GUI update function for the `client` peer when FIN flag was received
+        """
         self.confirm_label.configure(text="Ano", fg="#319e12")  # Green
 
     def start_receive(self, data_len, name):
+        """
+        Validate saving directory path, update main GUI for receiving a file
+
+        Makes sure the peer doesn't receive the file unless he clicks a button.
+
+        :param int data_len: Receiving file length
+        :param bytes name: Encoded name of the receiving file
+        """
         if self.save_dir == "":
             self.error("Cílový adresář je prázdný!")
             self.wait_variable(self.receive_check)
@@ -172,14 +211,30 @@ class Gui(Frame):
         self.receive_check.set(0)
 
     def progress_handler(self, received):
+        """
+        Handle the yielded % from the `server` part of the peer when receiving a file
+        """
         self.percentage.configure(text=f"{received}%")
 
     @staticmethod
     def error(text):
+        """
+        Display an GUI error message using the function parameter
+
+        :param str text: error message
+        """
         messagebox.showerror("Chyba", text)
 
     @staticmethod
-    def good_addr(addr):
+    def valid_addr(addr):
+        """
+        Validate socket address
+
+        :param str addr: Socket address to be validated
+        :return: Whether the address is valid
+        :rtype: bool
+        """
+
         addr = addr.split(":")
         if len(addr) != 2:
             return False
@@ -199,5 +254,12 @@ class Gui(Frame):
         return True
 
     @staticmethod
-    def good_path(path):
+    def valid_path(path):
+        """
+        Validate the path in the function argument
+
+        :param str path: path to be validated
+        :return: Whether the path is valid
+        :rtype: bool
+        """
         return os.path.exists(path)

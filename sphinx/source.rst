@@ -9,7 +9,7 @@ Subpackages
 
    source.app
    source.db
-   source.file_transfer
+   source.peer
    source.gui
 
 Module contents

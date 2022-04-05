@@ -4,10 +4,10 @@ source.gui package
 Submodules
 ----------
 
-source.gui.Gui module
----------------------
+source.gui.MainGui module
+-------------------------
 
-.. automodule:: source.gui.Gui
+.. automodule:: source.gui.MainGui
    :members:
    :undoc-members:
    :show-inheritance:

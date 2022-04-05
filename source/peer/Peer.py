@@ -4,6 +4,10 @@ from .Flags import Flags
 
 
 class Peer:
+    """
+    Connect the server and client together to create the application's peer
+    """
+
     def __init__(self, name: str, port: int):
         self.flags = Flags(b"HEADER_START", b"HEADER_END", b"DATA_END", b"FIN")
         self.server_address = '0.0.0.0'

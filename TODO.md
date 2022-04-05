@@ -1,9 +1,8 @@
 # TODOs
 
 1. Prezentacia
-2. Flow chart 
-3. Navod
-4. Check Windows compatibility
+2. Flow chart
+3. Check Windows compatibility
 
 ## File Transfer
 
@@ -11,7 +10,6 @@
     - posielanie suborov na IP adresu ulozenu v databazi
     - vyuzivanie certifikatov z database
 3. Poslanie suboru aj ked je uzivatel offline
-4. Dokumentacia v kode
 
 
 ## Database

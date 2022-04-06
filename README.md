@@ -29,7 +29,7 @@ School project for BUTs MPC-KRY subject.
 
 # Documentation
 
-- You can browse the documentation either in code or by visiting [this](http://172.105.249.59:6060/index.html) website
+- You can browse the documentation either in code or by visiting [this](http://172.105.249.59:6060) website
 - The hosted documentation is created using [shpinx](https://www.sphinx-doc.org/en/master/)
     - Configuration files for creating the documentation are in the `sphinx` folder
     - In order to build the website from code documentation install `sphinx` with `pip3 install sphinx`

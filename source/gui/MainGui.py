@@ -123,7 +123,7 @@ class MainGui(Frame):
             return
         self.send_file_path = new_path
         # Display information about the file
-        self.size_label.configure(text=f"{os.path.getsize(self.send_file_path)} B")
+        self.size_label.configure(text=self.convert_data_len(os.path.getsize(self.send_file_path)))
         self.name_label.configure(text=self.send_file_path.split(os.sep)[-1])
 
     def choose_save_dir(self):
@@ -236,7 +236,7 @@ class MainGui(Frame):
             self.available_label.configure(text="Ano", fg="#319e12")  # Green
         else:
             self.available_label.configure(text="Ne", fg="#ff0000")  # Red
-            self.unavailable_label.grid(row=4, columnspan=2)
+            self.unavailable_label.grid(row=4, columnspan=3)
             self.unavailable_label.configure(text="Peer je nedostupný, posílaní souboru v pozadí")
 
     def start_receive(self, data_len, name):
@@ -251,7 +251,7 @@ class MainGui(Frame):
             # Wait until a directory os choosen
             self.wait_variable(self.save_dir_check)
         self.server.file_location = self.save_dir
-        self.receive_size.configure(text=f"{data_len} B")
+        self.receive_size.configure(text=self.convert_data_len(data_len))
         self.receive_name.configure(text=f"{name.decode('UTF-8')}")
         self.new_file_label.configure(text="Ano", fg="#ff0000")  # Red
         # Makes sure the peer doesn't receive the file unless he clicks a button.
@@ -264,6 +264,24 @@ class MainGui(Frame):
         Handle the yielded % from the `server` part of the peer when receiving a file
         """
         self.percentage.configure(text=f"{received}%")
+
+    @staticmethod
+    def convert_data_len(data_len):
+        """
+        Convert bytes to readable format
+
+        :param int data_len:
+        :return: Formatted string
+        :rtype: str
+        """
+        # 2**10 = 1024
+        power = 2 ** 10
+        n = 0
+        power_labels = {0: 'B', 1: 'KB', 2: 'MB', 3: 'GB', 4: 'TB'}
+        while data_len > power:
+            data_len /= power
+            n += 1
+        return f'{int(data_len)} {power_labels[n]}'
 
     @staticmethod
     def error(text):

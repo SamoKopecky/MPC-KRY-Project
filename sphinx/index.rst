@@ -14,6 +14,7 @@ Welcome to MPC-Project's documentation!
    :maxdepth: 4
 
    header
+   architecture
    flowchart
 
 Module index

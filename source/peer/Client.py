@@ -1,7 +1,9 @@
+import io
 import socket
 import ssl
 import sys
 import os
+import typing
 
 from .Flags import Flags
 
@@ -12,15 +14,16 @@ class Client:
     client application.
     """
 
-    def __init__(self, flags: Flags, name: str):
-        self.flags = flags
+    def __init__(self, name: str):
+        self.flags = Flags()
         self.name = name
         self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../certs'
-        self.secure_sock: ssl.SSLSocket
+        self.secure_sock = socket.socket()
         self.context = None
         self.init_sock()
-        self.confirm_func = print
-        self.available_func = print
+        # Initialize to do nothing for now
+        self.confirm_func = lambda: None
+        self.available_func = lambda x: None
 
     def init_sock(self):
         """
@@ -84,25 +87,25 @@ class Client:
             self.close_conn()
             return True
 
-    def send_file(self, file_bytes, file_name):
+    def send_file(self, file, file_name):
         """
         Send a named file with contents specified in function parameters
 
         Send the file contents together with the created header in
         **build_message** function
 
-        :param bytes file_bytes: encoded bytes of the file contents
+        :param bytes file: Opened file to send
         :param str file_name: name of the file
         """
         print("Sending header and file data")
-        data_to_send = self.build_message(file_bytes, file_name)
+        data_to_send = self.build_message(file, file_name)
         self.secure_sock.sendall(data_to_send)
         data = self.secure_sock.recv(2048)
         if data == self.flags.FIN:
             self.confirm_func()
             self.close_conn()
         else:
-            print("something went wrong")
+            print("Something went wrong")
             sys.exit(0)
 
     def build_message(self, file_bytes, file_name):
@@ -114,6 +117,7 @@ class Client:
         """
 
         binary_length = bin(len(file_bytes)).split("b")[1]
+        # Padded to 64 bit length
         binary_length_padded = '0' * (64 - len(binary_length)) + binary_length
         return self.flags.HEADER_START + bytes(binary_length_padded, 'UTF-8') + \
                bytes(file_name, 'UTF-8') + self.flags.HEADER_END + file_bytes + self.flags.DATA_END

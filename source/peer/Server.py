@@ -12,20 +12,20 @@ class Server(threading.Thread):
     server application.
     """
 
-    def __init__(self, port, ip, flags: Flags, name: str, progress_handler, interface_gui_init):
+    def __init__(self, port: int, ip: str, name: str, progress_handler, interface_gui_init):
         super().__init__()
         self.stop_loop = threading.Event()
         self.ip = ip
         self.port = port
         self.context = ssl.SSLContext
         self.name = name
-        self.flags = flags
-        self.file_location = "."
+        self.flags = Flags()
+        self.file_location = ""
         self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../certs'
         self.progress_handler = progress_handler
         self.interface_gui_init = interface_gui_init
-        self.secure_socket: ssl.SSLSocket
-        self.current_conn: socket
+        self.secure_socket = socket.socket()
+        self.current_conn = socket.socket()
 
     def run(self) -> None:
         """
@@ -38,17 +38,18 @@ class Server(threading.Thread):
         """
         self.init_sock()
         while not self.stop_loop.is_set():
-            # Receive header
-            # call gui init function, wait for button clicked -- do this in tinker
-            # for loop for yielding results
+
             self.start_listening()
+            # Check if thread is to be stopped by the main window exiting
             if self.stop_loop.is_set():
                 break
             initial_msg = self.current_conn.recv(2048)
             if self.receive_heartbeat(initial_msg):
                 continue
             data_len, name, data = self.parse_header(initial_msg)
+            # call gui init function, wait for button clicked to receive a file -- do this in tinker
             self.interface_gui_init(data_len, name)
+            # for loop for handling percentage of file received
             for done_percent in self.receive_body(self.file_location, self.current_conn, data_len, name, data):
                 self.progress_handler(done_percent)
 
@@ -68,6 +69,7 @@ class Server(threading.Thread):
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         sock.bind((self.ip, self.port))
+        # 5 -- Amount of possible concurrent connection
         sock.listen(5)
         self.secure_socket = self.context.wrap_socket(sock, server_side=True)
 
@@ -133,6 +135,7 @@ class Server(threading.Thread):
                 print("Connection error")
                 break
             if self.is_data_end(raw_data):
+                # Write everything but the DATA_END flag
                 file.write(raw_data[:-len(self.flags.DATA_END)])
                 break
             file.write(raw_data)
@@ -143,6 +146,7 @@ class Server(threading.Thread):
                 yield received
         print("Done receiving file, sending FIN")
         yield 100
+        file.close()
         conn.send(self.flags.FIN)
 
     def parse_header(self, data):
@@ -154,10 +158,12 @@ class Server(threading.Thread):
         :rtype: (int, bytes, bytes)
         """
         if self.flags.HEADER_START not in data:
+            print("Error, wrong header")
             exit(1)
         header_end_index = data.index(self.flags.HEADER_END)
         header = data[len(self.flags.HEADER_START):header_end_index]
         file_data = data[header_end_index + len(self.flags.HEADER_END):]
+        # Decode from binary to decimal
         file_len = int(header[:64], 2)
         file_name = header[64:]
         return file_len, file_name, file_data

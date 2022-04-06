@@ -1,7 +1,7 @@
 # TODOs
 
 1. Prezentacia
-2. Flow chart
+2. Flow chart/architecture
 3. Check Windows compatibility
 
 ## File Transfer
@@ -9,11 +9,8 @@
 1. Prepojenie z databazov
     - posielanie suborov na IP adresu ulozenu v databazi
     - vyuzivanie certifikatov z database
-2. Proper logging
-
 
 ## Database
-
 
 1. Databasa zo z tabulkami
     - Users -- id, IP, port, name -- viacej riadkov

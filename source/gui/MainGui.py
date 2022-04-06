@@ -11,20 +11,27 @@ class MainGui(Frame):
     """
 
     def __init__(self, send_function, name, port):
+        # Tkinter stuff
         parent = tkinter.Tk()
         super().__init__(parent)
         self.parent = parent
         self.title = f"{name}:{port}"
         self.parent.title(self.title)
-        self.receive_check = tkinter.IntVar()
+
+        # Mutex variables
         self.save_dir_check = tkinter.IntVar()
-        self.addr_check = tkinter.IntVar()
-        self.confirm_label: Label
-        self.available_label: Label
-        self.unavailable_label: Label
+        self.save_dir_check = tkinter.IntVar()
+
+        # Dynamic labels
+        self.confirm_label: Label = Label()
+        self.available_label: Label = Label()
+        self.unavailable_label: Label = Label()
+
+        # Saved variables
         self.send_file_path = ""
         self.socket_address = ""
         self.save_dir = ""
+
         # Initialize all required elements
         self.file_path_entry = Entry(self.parent)
         self.file_path_button = Button(self.parent, text="Zvolit", command=self.choose_save_dir)
@@ -40,11 +47,12 @@ class MainGui(Frame):
             self.parent, text="Odeslat z DB", command=self.choose_db_addr)
         self.receive_name = Label(self.parent, text="-")
         self.receive_size = Label(self.parent, text="0 B")
-        self.receive_button = Button(self.parent, text="Přijmout soubor", command=lambda: self.receive_check.set(1))
+        self.receive_button = Button(self.parent, text="Přijmout soubor", command=lambda: self.save_dir_check.set(1))
         self.percentage = Label(self.parent, text="0%")
         self.new_file_label = Label(self.parent, text="Ne")
         self.create_layout()
 
+        # Linking with server and client
         self.send_function = send_function
         self.server = None
 
@@ -107,19 +115,20 @@ class MainGui(Frame):
 
     def choose_send_file_path(self):
         """
-        Extracts, checks and saves the file path of the file to be sent
+        Extract, check and save the file path of the file to be sent
         """
         new_path = str(self.save_dir_entry.get())
         if not self.valid_path(new_path):
             self.error("Neplatná cesta!")
             return
         self.send_file_path = new_path
+        # Display information about the file
         self.size_label.configure(text=f"{os.path.getsize(self.send_file_path)} B")
         self.name_label.configure(text=self.send_file_path.split(os.sep)[-1])
 
     def choose_save_dir(self):
         """
-        Extracts, checks and saves the directory path for saving received files
+        Extract, check and save the directory path for saving received files
         """
         new_path = str(self.file_path_entry.get())
         if not self.valid_path(new_path):
@@ -128,19 +137,19 @@ class MainGui(Frame):
         elif new_path[-1] == os.sep:
             self.error("Lomitko nesmí být na konci cesty!")
         else:
-            self.receive_check.set(1)
+            # receive_check variable is used when the save dir was not entered before receiving a file
+            self.save_dir_check.set(1)
             self.save_dir = new_path
             self.saved_path_entry.configure(text=f"{self.save_dir}")
-            self.receive_check.set(0)
+            self.save_dir_check.set(0)
 
     def choose_socket_addr(self):
         """
-        Extracts and saves the manual socket address
+        Extract and save the manual socket address
         """
-        self.addr_check.set(1)
+        # add_check is used
         self.socket_address = str(self.manual_address_entry.get())
         self.send_to_socket(self.socket_address)
-        self.addr_check.set(0)
 
     def choose_db_addr(self):
         """
@@ -151,12 +160,10 @@ class MainGui(Frame):
 
     def send_to_socket(self, socket_addr):
         """
-        Check and send file to the socket address, create new GUI part
+        Check and send file to the socket address
 
         Is called by the `client` part of the peer when sending a file.
         Validate the socket address and whether a the file path was chosen.
-        Create a new GUI window for displaying what file is being sent and whether
-        a confirmation from the other peer was received.
 
         :param str socket_addr: destination socket for the file
         """
@@ -171,22 +178,46 @@ class MainGui(Frame):
             self.error("Nebyl vybrán žádný soubor!")
             return
 
-        slave = tkinter.Tk()
-        slave.title(self.title)
-        Label(slave, text="Zasílaný soubor: ").grid(row=0, sticky="w")
-        Label(slave, text=self.name_label.cget('text')).grid(row=0, column=1, sticky="w")
-        Label(slave, text="Adresa socketu: ").grid(row=1, sticky="w")
-        Label(slave, text=socket_addr).grid(row=1, column=1, sticky="w")
-        Label(slave, text=f"Je peer dostupný: ").grid(row=2, sticky="w")
-        self.available_label = Label(slave, text="...")
-        self.available_label.grid(row=2, column=1, sticky="w")
-        Label(slave, text=f"Potvrzení od cíle: ").grid(row=3, sticky="w")
-        self.confirm_label = Label(slave, text="...")
-        self.confirm_label.grid(row=3, column=1, sticky="w")
-        self.unavailable_label = Label(slave, text="")
+        slave = self.create_send_gui(socket_addr)
         slave.update()
 
         self.send_function(ip, port, self.send_file_path, slave.update)
+
+    def create_send_gui(self, socket_addr):
+        """
+        Create new GUI window used for sending a file
+
+        Create a new GUI window for displaying what file is being sent, whether
+        a confirmation from the other peer was received and if the other peer
+        is available.
+
+        :param str socket_addr: destination socket for the file
+        :return: A created GUI
+        :rtype: tkinter.Tk
+        """
+        slave = tkinter.Tk()
+        slave.title(self.title)
+        self.available_label = Label(slave, text="...")
+        self.confirm_label = Label(slave, text="...")
+        self.unavailable_label = Label(slave, text="")
+
+        # 0
+        Label(slave, text="Zasílaný soubor: ").grid(row=0, sticky="w")
+        Label(slave, text=self.name_label.cget('text')).grid(row=0, column=1, sticky="w")
+
+        # 1
+        Label(slave, text="Adresa socketu: ").grid(row=1, sticky="w")
+        Label(slave, text=socket_addr).grid(row=1, column=1, sticky="w")
+
+        # 2
+        Label(slave, text=f"Je peer dostupný: ").grid(row=2, sticky="w")
+        self.available_label.grid(row=2, column=1, sticky="w")
+
+        # 3
+        Label(slave, text=f"Potvrzení od cíle: ").grid(row=3, sticky="w")
+        self.confirm_label.grid(row=3, column=1, sticky="w")
+
+        return slave
 
     def update_confirmation(self):
         """
@@ -212,21 +243,21 @@ class MainGui(Frame):
         """
         Validate saving directory path, update main GUI for receiving a file
 
-        Makes sure the peer doesn't receive the file unless he clicks a button.
-
         :param int data_len: Receiving file length
         :param bytes name: Encoded name of the receiving file
         """
         if self.save_dir == "":
             self.error("Cílový adresář je prázdný!")
-            self.wait_variable(self.receive_check)
+            # Wait until a directory os choosen
+            self.wait_variable(self.save_dir_check)
         self.server.file_location = self.save_dir
         self.receive_size.configure(text=f"{data_len} B")
         self.receive_name.configure(text=f"{name.decode('UTF-8')}")
         self.new_file_label.configure(text="Ano", fg="#ff0000")  # Red
-        self.receive_button.wait_variable(self.receive_check)
+        # Makes sure the peer doesn't receive the file unless he clicks a button.
+        self.receive_button.wait_variable(self.save_dir_check)
         self.new_file_label.configure(text="Ne", fg="#000000")  # Black
-        self.receive_check.set(0)
+        self.save_dir_check.set(0)
 
     def progress_handler(self, received):
         """
@@ -256,16 +287,17 @@ class MainGui(Frame):
         addr = addr.split(":")
         if len(addr) != 2:
             return False
+
+        # Check IP
         ip = addr[0]
-        try:
-            port = int(addr[1])
-        except ValueError:
-            return False
         if ip == "":
             return False
+
+        # Check port
         try:
+            port = int(addr[1])
             socket.inet_aton(ip)
-        except socket.error:
+        except (ValueError, socket.error):
             return False
         if port <= 0 or port > 65535:
             return False

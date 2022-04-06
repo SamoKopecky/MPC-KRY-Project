@@ -1,11 +1,9 @@
 import os
-import socket
 import subprocess
 from time import sleep
 
 from .Client import Client
 from .Server import Server
-from .Flags import Flags
 
 
 class Peer:
@@ -14,14 +12,14 @@ class Peer:
     """
 
     def __init__(self, name: str, port: int):
-        self.flags = Flags(b"HEADER_START", b"HEADER_END", b"DATA_END", b"HEARTBEAT", b"FIN")
+        # Listen for all connections
         self.server_address = '0.0.0.0'
         self.listen_port = port
         self.name = name
         self.retries = 3
         self.timeout = 2
         self.server: Server
-        self.client = Client(self.flags, self.name)
+        self.client = Client(self.name)
 
     def listen(self, progress_handler, gui_init):
         """
@@ -33,7 +31,7 @@ class Peer:
         :param function progress_handler: handle the information about file sending progress
         :param function gui_init: initialize GUI when message header is received
         """
-        self.server = Server(self.listen_port, self.server_address, self.flags, self.name, progress_handler, gui_init)
+        self.server = Server(self.listen_port, self.server_address, self.name, progress_handler, gui_init)
         self.server.start()
 
     def send_file(self, hostname, port, file_path, gui_update):
@@ -50,17 +48,17 @@ class Peer:
         """
         if not self.is_alive(hostname, port):
             self.client.available_func(False)
-            run = [os.path.abspath("app.py"), '-bg', hostname, str(port), file_path, self.name]
             print("Creating a subprocess for sending a file")
-            subprocess.Popen(" ".join(run), shell=True)
+            command = f'{os.path.abspath("app.py")} -bg {hostname} {str(port)} {file_path} {self.name}'
+            subprocess.Popen(command, shell=True)
+            # Stop sending file in this process
             return
         else:
             self.client.available_func(True)
         gui_update()
         self.client.connect(hostname, port)
-        file_name = file_path.split("/")[-1]
-        file = open(file_path, 'rb')
-        self.client.send_file(file.read(), file_name)
+        file_bytes, file_name = self.file_open_name(file_path)
+        self.client.send_file(file_bytes, file_name)
 
     def is_alive(self, hostname, port):
         """
@@ -89,13 +87,24 @@ class Peer:
         :param str file_path: File path of the sending file
         :param int loop_interval: Amount of seconds to wait before checking again
         """
-        file_name = file_path.split("/")[-1]
-        file = open(file_path, 'rb')
-        file_data = file.read()
-        file.close()
+        file_bytes, file_name = self.file_open_name(file_path)
         while not self.client.send_heartbeat(hostname, port, self.timeout):
             sleep(loop_interval)
-        self.client.confirm_func = print
         self.client.connect(hostname, port)
-        self.client.send_file(file_data, file_name)
+        self.client.send_file(file_bytes, file_name)
         exit(0)
+
+    @staticmethod
+    def file_open_name(file_path):
+        """
+        Get the file name and read it
+
+        :param str file_path: Path to the file
+        :return: file contents and its name
+        :rtype: (bytes, str)
+        """
+        file_name = file_path.split("/")[-1]
+        file = open(file_path, 'rb')
+        file_bytes = file.read()
+        file.close()
+        return file_bytes, file_name

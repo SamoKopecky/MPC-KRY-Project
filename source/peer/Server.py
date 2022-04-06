@@ -61,7 +61,8 @@ class Server(threading.Thread):
         during the connection creation. Bind to an address and port (socket)
         and wrap it in an SSL context
         """
-        self.context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+        self.context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+        self.context.set_ciphers("AESGCM")
         self.context.load_cert_chain(f"{self.certs}/{self.name}-cert.pem", f"{self.certs}/{self.name}.key")
         self.context.load_verify_locations(f"{self.certs}/root.crt")
         self.context.check_hostname = False

@@ -13,9 +13,9 @@ Welcome to MPC-Project's documentation!
 .. toctree::
    :maxdepth: 4
 
-   header
    architecture
-   flowchart
+   flowcharts
+   header
 
 Module index
 ------------

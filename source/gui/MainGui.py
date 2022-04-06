@@ -270,7 +270,7 @@ class MainGui(Frame):
         """
         Convert bytes to readable format
 
-        :param int data_len:
+        :param int data_len: File size in bytes
         :return: Formatted string
         :rtype: str
         """

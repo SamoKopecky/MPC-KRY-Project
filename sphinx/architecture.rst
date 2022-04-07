@@ -15,7 +15,7 @@ Server handles heartbeat communication and **file receiving**. Same as the clien
 
 Heartbeat communication
 -----------------------
-It is used to check whether the other peer is available by sending the `HEARTBEAT` flag defined in the `Flags` class (:doc:`source.peer`). If the other peer send the flag back the file sending process can begin.
+It is used to check whether the other peer is available by sending the `HEARTBEAT` flag defined in the :doc:`source.peer#module-source.peer.Flags` class (:doc:`source.peer`). If the other peer send the flag back the file sending process can begin.
 
 Database
 --------

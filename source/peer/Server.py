@@ -21,7 +21,7 @@ class Server(threading.Thread):
         self.name = name
         self.flags = Flags()
         self.file_location = ""
-        self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../certs'
+        self.certs = os.path.dirname(os.path.abspath(__file__)) + f'{os.sep}..{os.sep}certs'
         self.progress_handler = progress_handler
         self.interface_gui_init = interface_gui_init
         self.secure_socket = socket.socket()
@@ -63,8 +63,8 @@ class Server(threading.Thread):
         """
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLS)
         self.context.set_ciphers("AESGCM")
-        self.context.load_cert_chain(f"{self.certs}/{self.name}-cert.pem", f"{self.certs}/{self.name}.key")
-        self.context.load_verify_locations(f"{self.certs}/root.crt")
+        self.context.load_cert_chain(f"{self.certs}{os.sep}{self.name}-cert.pem", f"{self.certs}{os.sep}{self.name}.key")
+        self.context.load_verify_locations(f"{self.certs}{os.sep}root.crt")
         self.context.check_hostname = False
         self.context.verify_mode = ssl.CERT_REQUIRED
 

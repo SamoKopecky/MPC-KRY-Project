@@ -3,7 +3,7 @@
 School project for BUTs MPC-KRY subject.
 
 # How to run
-
+- `Python3.8` is the recomended version, but the app can proabably run even on lower python versions
 - Before installing dependencies it is recommended to create a virtual environment, refer
   to the [guides below](#how-to-create-a-virtual-environment)
 - Install `tkinter` dependency based on which OS you are on:
@@ -25,7 +25,7 @@ School project for BUTs MPC-KRY subject.
 ### Windows
 
 - Create a virtual environment with `python3 -m venv c:\path\to\myenv`
-- Start using venv with `TODO`
+- Start using venv with `c:\path\to\myenv\Scripts\activate`
 
 # Documentation
 

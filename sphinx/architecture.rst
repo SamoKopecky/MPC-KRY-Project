@@ -1,6 +1,10 @@
 App architecture
 ================
 
+Class diagram
+-------------
+.. image:: flowcharts/uml.svg
+
 Peer
 ----
 Peer is the main communication endpoint for the application. It is created from the **Client** and **Server** classes. It creates objects from those two classes. It is also responsible for handling the heartbeat messages that are used for checking availability. If the other peer that the file is being sent to is offline, **a background process is created** which will attempt to send the file on a specified interval. If the main windows is closed so is this process.
@@ -15,7 +19,7 @@ Server handles heartbeat communication and **file receiving**. Same as the clien
 
 Heartbeat communication
 -----------------------
-It is used to check whether the other peer is available by sending the `HEARTBEAT` flag defined in the :doc:`source.peer#module-source.peer.Flags` class (:doc:`source.peer`). If the other peer send the flag back the file sending process can begin.
+It is used to check whether the other peer is available by sending the `HEARTBEAT` flag defined in the `Flags` class (:doc:`source.peer`). If the other peer send the flag back the file sending process can begin.
 
 Database
 --------

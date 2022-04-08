@@ -1,6 +1,12 @@
-Flowchart
-=========
+Flowcharts
+==========
 
-Testovanie ci je mozne vlozit obrazok
+Regular connection
+------------------
 
-.. image:: flowcharts/watermark.png
+.. image:: flowcharts/normal_conn_en.svg
+
+Other peer unavailable
+----------------------
+
+.. image:: flowcharts/not_avail_conn_en.svg

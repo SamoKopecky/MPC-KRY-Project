@@ -11,7 +11,7 @@ School project for BUTs MPC-KRY subject.
     - Fedora/RHEL: `dnf install python3-tkinter`
     - Windows: `tkinter` should be packaged with the standard python library
 - Install dependencies by running `pip3 install -r requirements.py` in the project root directory
-- Run by launching the `source/app.py` file
+- Run by launching the `app.py` file in the projects root directory
     - Linux: `./app.py`
     - Windows: `python3 app.py`
 

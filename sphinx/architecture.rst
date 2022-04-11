@@ -25,8 +25,8 @@ Database
 --------
 TODO
 
-GUI
----
+MainGui
+-------
 It is the frontend of the application. It is built using `tkinter <https://docs.python.org/3/library/tkinter.html>`_ library. File/directory paths and socket address **are validated** before the inputs are being saved. If the peer is going receive a file he **must click a button** before he will receive it. If the peer is sending a file a new window is created displaying information about the file sending process and peer availability.
 
 

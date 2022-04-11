@@ -17,7 +17,7 @@ class Client:
     def __init__(self, name: str):
         self.flags = Flags()
         self.name = name
-        self.certs = os.path.dirname(os.path.abspath(__file__)) + f'{os.sep}..{os.sep}certs'
+        self.certs = os.path.dirname(os.path.abspath(__file__)) + f'{os.sep}..{os.sep}..{os.sep}certs'
         self.secure_sock = socket.socket()
         self.context = None
         self.init_sock()

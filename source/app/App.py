@@ -1,4 +1,5 @@
 from ..gui.MainGui import MainGui
+from ..gui.EntryGui import EntryGui
 from ..peer.Peer import Peer
 
 
@@ -8,9 +9,10 @@ class App:
     the application.
     """
 
-    def __init__(self, name: str, port: int):
+    def __init__(self, name: str = ""):
         self.name = name
-        self.port = port
+        self.port = 0
+        self.passwd = ""
 
     def start_app(self):
         """
@@ -19,6 +21,18 @@ class App:
         Handle the termination of the server thread if the main thread ends.
         The main thread ends if the GUI part of the applications exists.
         """
+        # Start entry dialog
+        entry = EntryGui()
+        entry.mainloop()
+        if not entry.data_sent:
+            exit(0)
+
+        # Setup variables
+        self.name = entry.name
+        self.passwd = entry.passwd
+        self.port = entry.port
+
+        # Start main APP/GUI
         peer = Peer(self.name, self.port)
         gui = MainGui(peer.send_file, self.name, self.port)
         peer.client.confirm_func = gui.update_confirmation

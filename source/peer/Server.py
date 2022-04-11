@@ -21,7 +21,7 @@ class Server(threading.Thread):
         self.name = name
         self.flags = Flags()
         self.file_location = ""
-        self.certs = os.path.dirname(os.path.abspath(__file__)) + f'{os.sep}..{os.sep}certs'
+        self.certs = os.path.dirname(os.path.abspath(__file__)) + f'{os.sep}..{os.sep}..{os.sep}certs'
         self.progress_handler = progress_handler
         self.interface_gui_init = interface_gui_init
         self.secure_socket = socket.socket()

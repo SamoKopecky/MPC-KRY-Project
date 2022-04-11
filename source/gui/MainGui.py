@@ -1,26 +1,25 @@
 import os
 import socket
-import tkinter
 
-from tkinter import Label, Frame, Entry, Button, messagebox
+from tkinter import Label, Entry, Button, IntVar, Tk
+from .utils import valid_port, error
+from .Gui import Gui
 
 
-class MainGui(Frame):
+class MainGui(Gui):
     """
-    Define the GUI of the application
+    Define the main GUI of the application
     """
 
     def __init__(self, send_function, name, port):
         # Tkinter stuff
-        parent = tkinter.Tk()
-        super().__init__(parent)
-        self.parent = parent
+        super().__init__()
         self.title = f"{name}:{port}"
         self.parent.title(self.title)
 
         # Mutex variables
-        self.save_dir_check = tkinter.IntVar()
-        self.save_dir_check = tkinter.IntVar()
+        self.save_dir_check = IntVar()
+        self.save_dir_check = IntVar()
 
         # Dynamic labels
         self.confirm_label: Label = Label()
@@ -48,7 +47,7 @@ class MainGui(Frame):
         self.receive_name = Label(self.parent, text="-")
         self.receive_size = Label(self.parent, text="0 B")
         self.receive_button = Button(self.parent, text="Přijmout soubor", command=lambda: self.save_dir_check.set(1))
-        self.percentage = Label(self.parent, text="0%")
+        self.percentage = Label(self.parent, text="0 %")
         self.new_file_label = Label(self.parent, text="Ne")
         self.create_layout()
 
@@ -119,7 +118,7 @@ class MainGui(Frame):
         """
         new_path = str(self.save_dir_entry.get())
         if not self.valid_path(new_path):
-            self.error("Neplatná cesta!")
+            error("Neplatná cesta!")
             return
         self.send_file_path = new_path
         # Display information about the file
@@ -132,10 +131,10 @@ class MainGui(Frame):
         """
         new_path = str(self.file_path_entry.get())
         if not self.valid_path(new_path):
-            self.error("Neplatná cesta!")
+            error("Neplatná cesta!")
             return
         elif new_path[-1] == os.sep:
-            self.error("Lomitko nesmí být na konci cesty!")
+            error("Lomitko nesmí být na konci cesty!")
         else:
             # receive_check variable is used when the save dir was not entered before receiving a file
             self.save_dir_check.set(1)
@@ -168,14 +167,14 @@ class MainGui(Frame):
         :param str socket_addr: destination socket for the file
         """
         if not self.valid_addr(socket_addr):
-            self.error("Špatně zadána adresa!")
+            error("Špatně zadána adresa!")
             return
         addr = socket_addr.split(":")
         ip = addr[0]
         port = int(addr[1])
 
         if self.send_file_path == "":
-            self.error("Nebyl vybrán žádný soubor!")
+            error("Nebyl vybrán žádný soubor!")
             return
 
         slave = self.create_send_gui(socket_addr)
@@ -195,7 +194,7 @@ class MainGui(Frame):
         :return: A created GUI
         :rtype: tkinter.Tk
         """
-        slave = tkinter.Tk()
+        slave = Tk()
         slave.title(self.title)
         self.available_label = Label(slave, text="...")
         self.confirm_label = Label(slave, text="...")
@@ -247,7 +246,7 @@ class MainGui(Frame):
         :param bytes name: Encoded name of the receiving file
         """
         if self.save_dir == "":
-            self.error("Cílový adresář je prázdný!")
+            error("Cílový adresář je prázdný!")
             # Wait until a directory os choosen
             self.wait_variable(self.save_dir_check)
         self.server.file_location = self.save_dir
@@ -262,8 +261,10 @@ class MainGui(Frame):
     def progress_handler(self, received):
         """
         Handle the yielded % from the `server` part of the peer when receiving a file
+
+        :param str received: Percentage received
         """
-        self.percentage.configure(text=f"{received}%")
+        self.percentage.configure(text=f"{received} %")
 
     @staticmethod
     def convert_data_len(data_len):
@@ -284,15 +285,6 @@ class MainGui(Frame):
         return f'{int(data_len)} {power_labels[n]}'
 
     @staticmethod
-    def error(text):
-        """
-        Display an GUI error message using the function parameter
-
-        :param str text: error message
-        """
-        messagebox.showerror("Chyba", text)
-
-    @staticmethod
     def valid_addr(addr):
         """
         Validate socket address
@@ -310,16 +302,12 @@ class MainGui(Frame):
         ip = addr[0]
         if ip == "":
             return False
-
-        # Check port
         try:
-            port = int(addr[1])
             socket.inet_aton(ip)
-        except (ValueError, socket.error):
+        except socket.error:
             return False
-        if port <= 0 or port > 65535:
-            return False
-        return True
+
+        return valid_port(addr[1])
 
     @staticmethod
     def valid_path(path):

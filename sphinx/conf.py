@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'MPC-Project'
+project = 'KRY-Project'
 copyright = '2022, Klára Blahušová, Petra Kajánková, Samuel Kopecký, Erik Kuna'
 author = 'Klára Blahušová, Petra Kajánková, Samuel Kopecký, Erik Kuna'
 

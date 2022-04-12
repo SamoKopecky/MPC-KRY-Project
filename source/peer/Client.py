@@ -17,7 +17,7 @@ class Client:
     def __init__(self, name: str):
         self.flags = Flags()
         self.name = name
-        self.certs = os.path.dirname(os.path.abspath(__file__)) + '/../certs'
+        self.certs = os.path.dirname(os.path.abspath(__file__)) + f'{os.sep}..{os.sep}..{os.sep}certs'
         self.secure_sock = socket.socket()
         self.context = None
         self.init_sock()
@@ -33,8 +33,9 @@ class Client:
         during the connection creation.
         """
         self.context = ssl.create_default_context()
-        self.context.load_cert_chain(f"{self.certs}/{self.name}-cert.pem", f"{self.certs}/{self.name}.key")
-        self.context.load_verify_locations(f"{self.certs}/root.crt")
+        self.context.load_cert_chain(f"{self.certs}{os.sep}{self.name}-cert.pem",
+                                     f"{self.certs}{os.sep}{self.name}.key")
+        self.context.load_verify_locations(f"{self.certs}{os.sep}root.crt")
         self.context.check_hostname = False
         self.context.verify_mode = ssl.CERT_REQUIRED
 

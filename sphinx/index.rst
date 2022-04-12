@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to MPC-Project's documentation!
+Welcome to KRY-Project's documentation!
 =======================================
 
 
@@ -13,9 +13,9 @@ Welcome to MPC-Project's documentation!
 .. toctree::
    :maxdepth: 4
 
-   header
    architecture
-   flowchart
+   flowcharts
+   header
 
 Module index
 ------------

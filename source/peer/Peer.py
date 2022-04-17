@@ -28,8 +28,8 @@ class Peer:
         Very simple function which only passes some arguments to the server
         object constructor and starts the listening thread from the outside.
 
-        :param function progress_handler: handle the information about file sending progress
-        :param function gui_init: initialize GUI when message header is received
+        :param str -> Any progress_handler: handle the information about file sending progress
+        :param (int, bytes) -> Any gui_init: initialize GUI when message header is received
         """
         self.server = Server(self.listen_port, self.server_address, self.name, progress_handler, gui_init)
         self.server.start()

@@ -1,6 +1,7 @@
 from ..gui.MainGui import MainGui
 from ..gui.EntryGui import EntryGui
 from ..peer.Peer import Peer
+from ..db.Database import Database
 
 
 class App:
@@ -13,6 +14,11 @@ class App:
         self.name = name
         self.port = 0
         self.passwd = ""
+        self.db = None
+
+    def init_db(self):
+        db = Database(self.name, self.passwd)
+        db.create_databases()
 
     def start_app(self):
         """
@@ -31,6 +37,9 @@ class App:
         self.name = entry.name
         self.passwd = entry.passwd
         self.port = entry.port
+
+        # Setup DB
+        self.init_db()
 
         # Start main APP/GUI
         peer = Peer(self.name, self.port)

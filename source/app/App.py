@@ -35,7 +35,7 @@ class App:
 
         # Start main APP/GUI
         peer = Peer(self.name, self.port, self.passwd)
-        gui = MainGui(peer.send_file, self.name, self.port)
+        gui = MainGui(peer.send_file, self.name, self.port, peer.client.db)
         peer.client.confirm_func = gui.update_confirmation
         peer.client.available_func = gui.update_availability
         peer.listen(gui.progress_handler, gui.start_receive)

@@ -4,6 +4,7 @@ from time import sleep
 
 from .Client import Client
 from .Server import Server
+from ..db.Database import Database
 
 
 class Peer:
@@ -35,7 +36,7 @@ class Peer:
         self.server = Server(self.listen_port, self.server_address, self.name, progress_handler, gui_init, self.passwd)
         self.server.start()
 
-    def send_file(self, hostname, port, file_path, gui_update):
+    def send_file(self, hostname, port, file_path, gui_update, list_update):
         """
         Connect to the specified socket and send a file contents + header
 
@@ -45,8 +46,11 @@ class Peer:
         :param str hostname: IP address of the target
         :param int port: port of the target
         :param str file_path: path to the to-be-sent file
-        :param function gui_update: Refresh the GUI to update some elements
+        :param () -> None gui_update: Refresh the GUI to update some elements
+        :param () -> None list_update: Update list of users in gui
         """
+        self.client.db.insert_user(f'{hostname}:{port}')
+        list_update()
         if not self.is_alive(hostname, port):
             self.client.available_func(False)
             print("Creating a subprocess for sending a file")
@@ -109,4 +113,3 @@ class Peer:
         file_bytes = file.read()
         file.close()
         return file_bytes, file_name
-

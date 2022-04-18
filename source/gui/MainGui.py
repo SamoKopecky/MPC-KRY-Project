@@ -1,9 +1,10 @@
 import os
 import socket
 
-from tkinter import Label, Entry, Button, IntVar, Tk
+from tkinter import Label, Entry, Button, IntVar, Tk, Listbox, END
 from .utils import valid_port, error
 from .Gui import Gui
+from ..db.Database import Database
 
 
 class MainGui(Gui):
@@ -11,7 +12,7 @@ class MainGui(Gui):
     Define the main GUI of the application
     """
 
-    def __init__(self, send_function, name, port):
+    def __init__(self, send_function, name: str, port: int, db: Database):
         # Tkinter stuff
         super().__init__()
         self.title = f"{name}:{port}"
@@ -49,11 +50,15 @@ class MainGui(Gui):
         self.receive_button = Button(self.parent, text="Přijmout soubor", command=lambda: self.save_dir_check.set(1))
         self.percentage = Label(self.parent, text="0 %")
         self.new_file_label = Label(self.parent, text="Ne")
+        self.listbox = Listbox(self.parent)
         self.create_layout()
 
         # Linking with server and client
         self.send_function = send_function
         self.server = None
+
+        self.db = db
+        self.refresh_list()
 
         # Temporary, delete later!
         self.file_path_entry.insert(0, "/home/samo/receive")
@@ -68,10 +73,12 @@ class MainGui(Gui):
         Label(self.parent, text="Adresář uložení: ").grid(row=0)
         self.file_path_entry.grid(row=0, column=1)
         self.file_path_button.grid(row=0, column=2, sticky='w')
+        Label(self.parent, text="Databáze uživatelú:", font=('Arial', 12)).grid(row=0, column=4)
 
         # 1
         Label(self.parent, text="Uložený adresář: ").grid(row=1)
         self.saved_path_entry.grid(row=1, column=1)
+        self.listbox.grid(row=1, column=4, rowspan=9)
 
         # 2
         Label(self.parent, text="Cesta k souboru: ").grid(row=2)
@@ -144,7 +151,7 @@ class MainGui(Gui):
 
     def choose_socket_addr(self):
         """
-        Extract and save the manual socket address
+        Extract and save the manual socket address, send file to that address
         """
         # add_check is used
         self.socket_address = str(self.manual_address_entry.get())
@@ -152,10 +159,24 @@ class MainGui(Gui):
 
     def choose_db_addr(self):
         """
-        TODO
+        Send file to an address selected in the listbox
         """
-        db_addr = "1.1.1.1:3"
-        self.send_to_socket(db_addr)
+        if len(self.listbox.curselection()) == 0:
+            error("Nebyl vybrán žádny řádek!")
+            return
+        selected = self.listbox.curselection()[0]
+        addr = self.listbox.get(selected, selected)[0]
+        self.send_to_socket(addr)
+
+    def refresh_list(self):
+        """
+        Refresh list of users
+        """
+        self.listbox.delete(0, END)
+        index = 0
+        for item in self.db.get_table(Database.users):
+            self.listbox.insert(index, item[1])
+            index += 1
 
     def send_to_socket(self, socket_addr):
         """
@@ -180,7 +201,7 @@ class MainGui(Gui):
         slave = self.create_send_gui(socket_addr)
         slave.update()
 
-        self.send_function(ip, port, self.send_file_path, slave.update)
+        self.send_function(ip, port, self.send_file_path, slave.update, self.refresh_list)
 
     def create_send_gui(self, socket_addr):
         """

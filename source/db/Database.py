@@ -49,9 +49,7 @@ class Database:
         """
         self.conn.execute("""CREATE TABLE IF NOT EXISTS users (
                                             id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                            user_name text,
-                                            ip text,
-                                            port integer
+                                            addr text
                                         );""")
         self.conn.execute("""CREATE TABLE IF NOT EXISTS app (
                                             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -60,17 +58,17 @@ class Database:
                                             cert text
                                         );""")
 
-    def insert_user(self, user_name, ip, port):
+    def insert_user(self, addr):
         """
-        Insert a user to the db
+        Insert a user to the db if he doesn't exist
 
-        :param str user_name: User name
-        :param str ip: IP address
-        :param int port: Port
+        :param str addr: IP + port
         """
-        sql = "INSERT INTO users (user_name, ip, port) VALUES (?, ?, ?)"
-        val = (user_name, ip, port)
-        self.conn.execute(sql, val)
+        sql = f'SELECT * FROM users WHERE addr="{addr}"'
+        if self.conn.execute(sql).fetchall()[0][1] == addr:
+            return
+        sql = f'INSERT INTO users (addr) VALUES ("{addr}")'
+        self.conn.execute(sql)
         self.conn.commit()
 
     def insert_app(self, root_cert, private_key, cert):

@@ -1,11 +1,11 @@
-import io
 import socket
 import ssl
 import sys
 import os
-import typing
 
 from .Flags import Flags
+from ..db.Database import Database
+from .utils import init_db
 
 
 class Client:
@@ -14,12 +14,14 @@ class Client:
     client application.
     """
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, passwd: str):
         self.flags = Flags()
         self.name = name
+        self.passwd = passwd
         self.certs = os.path.dirname(os.path.abspath(__file__)) + f'{os.sep}..{os.sep}..{os.sep}certs'
         self.secure_sock = socket.socket()
         self.context = None
+        self.db = init_db(self.name, self.passwd)
         self.init_sock()
         # Initialize to do nothing for now
         self.confirm_func = lambda: None
@@ -33,9 +35,9 @@ class Client:
         during the connection creation.
         """
         self.context = ssl.create_default_context()
-        self.context.load_cert_chain(f"{self.certs}{os.sep}{self.name}-cert.pem",
-                                     f"{self.certs}{os.sep}{self.name}.key")
-        self.context.load_verify_locations(f"{self.certs}{os.sep}root.crt")
+        table = self.db.get_table(Database.app)[0]
+        self.context.load_cert_chain(table[3], table[2], password=self.passwd)
+        self.context.load_verify_locations(table[1])
         self.context.check_hostname = False
         self.context.verify_mode = ssl.CERT_REQUIRED
 

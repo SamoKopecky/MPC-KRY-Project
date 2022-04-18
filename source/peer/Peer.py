@@ -11,15 +11,16 @@ class Peer:
     Connect the server and client together to create the application's peer
     """
 
-    def __init__(self, name: str, port: int):
+    def __init__(self, name: str, port: int, passwd: str):
         # Listen for all connections
         self.server_address = '0.0.0.0'
         self.listen_port = port
         self.name = name
+        self.passwd = passwd
         self.retries = 3
         self.timeout = 2
         self.server: Server
-        self.client = Client(self.name)
+        self.client = Client(self.name, self.passwd)
 
     def listen(self, progress_handler, gui_init):
         """
@@ -31,7 +32,7 @@ class Peer:
         :param str -> Any progress_handler: handle the information about file sending progress
         :param (int, bytes) -> Any gui_init: initialize GUI when message header is received
         """
-        self.server = Server(self.listen_port, self.server_address, self.name, progress_handler, gui_init)
+        self.server = Server(self.listen_port, self.server_address, self.name, progress_handler, gui_init, self.passwd)
         self.server.start()
 
     def send_file(self, hostname, port, file_path, gui_update):
@@ -108,3 +109,4 @@ class Peer:
         file_bytes = file.read()
         file.close()
         return file_bytes, file_name
+

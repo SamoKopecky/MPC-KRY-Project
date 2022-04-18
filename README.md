@@ -3,29 +3,21 @@
 School project for BUTs MPC-KRY subject.
 
 # How to run
-- `Python3.8` is the recomended version, but the app can proabably run even on lower python versions
-- Before installing dependencies it is recommended to create a virtual environment, refer
-  to the [guides below](#how-to-create-a-virtual-environment)
+
+- `Python3.8` is the recommended version, but the app can probably run even on lower python versions
+- Before installing dependencies it is recommended to create a virtual environment, refer to
+  the [guides below](#how-to-create-a-virtual-environment)
 - Install `tkinter` dependency based on which OS you are on:
     - Debian/Ubuntu `apt-get install python3-tk`
     - Fedora/RHEL: `dnf install python3-tkinter`
-    - Windows: `tkinter` should be packaged with the standard python library
 - Install dependencies by running `pip3 install -r requirements.py` in the project root directory
 - Run by launching the `app.py` file in the projects root directory
     - Linux: `./app.py`
-    - Windows: `python3 app.py`
 
 ## How to create a virtual environment
 
-### Linux
-
 - Create a virtual environment with `python3 -m venv path/to/myenv`
 - Start using venv with `source path/to/myenv/bin/activate`
-
-### Windows
-
-- Create a virtual environment with `python3 -m venv c:\path\to\myenv`
-- Start using venv with `c:\path\to\myenv\Scripts\activate`
 
 # Documentation
 

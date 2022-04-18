@@ -4,6 +4,8 @@ import os
 import threading
 
 from .Flags import Flags
+from .utils import init_db
+from ..db.Database import Database
 
 
 class Server(threading.Thread):
@@ -12,11 +14,12 @@ class Server(threading.Thread):
     server application.
     """
 
-    def __init__(self, port: int, ip: str, name: str, progress_handler, interface_gui_init):
+    def __init__(self, port: int, ip: str, name: str, progress_handler, interface_gui_init, passwd: str):
         super().__init__()
         self.stop_loop = threading.Event()
         self.ip = ip
         self.port = port
+        self.passwd = passwd
         self.context = ssl.SSLContext
         self.name = name
         self.flags = Flags()
@@ -26,6 +29,7 @@ class Server(threading.Thread):
         self.interface_gui_init = interface_gui_init
         self.secure_socket = socket.socket()
         self.current_conn = socket.socket()
+        self.db = None
 
     def run(self) -> None:
         """
@@ -36,6 +40,7 @@ class Server(threading.Thread):
         receiving progress percentages from the receive_body function.
         Also handle heartbeat messages.
         """
+        self.db = init_db(self.name, self.passwd)
         self.init_sock()
         while not self.stop_loop.is_set():
 
@@ -63,8 +68,9 @@ class Server(threading.Thread):
         """
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLS)
         self.context.set_ciphers("AESGCM")
-        self.context.load_cert_chain(f"{self.certs}{os.sep}{self.name}-cert.pem", f"{self.certs}{os.sep}{self.name}.key")
-        self.context.load_verify_locations(f"{self.certs}{os.sep}root.crt")
+        table = self.db.get_table(Database.app)[0]
+        self.context.load_cert_chain(table[3], table[2], password=self.passwd)
+        self.context.load_verify_locations(table[1])
         self.context.check_hostname = False
         self.context.verify_mode = ssl.CERT_REQUIRED
 

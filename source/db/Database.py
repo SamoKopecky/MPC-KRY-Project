@@ -18,6 +18,7 @@ class Database:
         self.dbs = f'{self.root_folder}dbs{os.sep}'
         self.name = user_name
         self.password = password
+        self.db_path = f'{self.dbs}{self.name}-database.db'
         self.root_cert = f'{self.certs}root.crt'
         self.cert = f'{self.certs}{self.name}-cert.pem'
         self.private_key = f'{self.certs}{self.name}.key'
@@ -32,9 +33,7 @@ class Database:
         """
         if not os.path.exists(self.dbs):
             os.mkdir(self.dbs)
-        db_path = f'{self.dbs}{self.name}-database.db'
-        self.conn = sqlcipher.connect(db_path)
-        self.conn.execute(f'pragma key="{self.password}"')
+        self.connect_to_db()
         self.create_tables()
         if not os.path.exists(self.cert) or not os.path.exists(self.cert) or not os.path.exists(self.private_key):
             self.create_certs()
@@ -42,6 +41,10 @@ class Database:
             return
         if len(self.get_table(self.app)) == 0:
             self.insert_app(self.root_cert, self.private_key, self.cert)
+
+    def connect_to_db(self):
+        self.conn = sqlcipher.connect(self.db_path)
+        self.conn.execute(f'pragma key="{self.password}"')
 
     def create_tables(self):
         """
@@ -92,7 +95,8 @@ class Database:
         :param str table_name:
         """
         sql = f"SELECT * FROM {table_name}"
-        return self.conn.execute(sql).fetchall()
+        result = self.conn.execute(sql).fetchall()
+        return result
 
     def create_certs(self):
         """

@@ -73,7 +73,7 @@ class MainGui(Gui):
         Label(self.parent, text="Adresář uložení: ").grid(row=0)
         self.file_path_entry.grid(row=0, column=1)
         self.file_path_button.grid(row=0, column=2, sticky='w')
-        Label(self.parent, text="Databáze uživatelú:", font=('Arial', 12)).grid(row=0, column=4)
+        Label(self.parent, text="Použité adresy:", font=('Arial', 12)).grid(row=0, column=4)
 
         # 1
         Label(self.parent, text="Uložený adresář: ").grid(row=1)

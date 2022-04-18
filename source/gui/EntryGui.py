@@ -16,11 +16,13 @@ class EntryGui(Gui):
         self.name_entry = Entry(self.parent)
         self.passwd_entry = Entry(self.parent, show='*')
         self.port_entry = Entry(self.parent)
+        self.timeout_entry = Entry(self.parent)
         self.send_button = Button(self.parent, text="OK", command=self.send_data)
 
         self.name = ''
         self.passwd = ''
         self.port = 0
+        self.timeout = 0
         self.data_sent = False
 
         self.parent.bind('<KeyPress>', self.enter_pressed)
@@ -31,6 +33,7 @@ class EntryGui(Gui):
         self.name_entry.insert(0, 'alice')
         self.passwd_entry.insert(0, 'test')
         self.port_entry.insert(0, '8888')
+        self.timeout_entry.insert(0, '30')
 
     def create_layout(self):
         """
@@ -51,7 +54,11 @@ class EntryGui(Gui):
         self.port_entry.grid(row=3, column=1)
 
         # 4
-        self.send_button.grid(row=4, columnspan=2)
+        Label(self.parent, text="Čas uložení souboru (s): ").grid(row=4)
+        self.timeout_entry.grid(row=4, column=1)
+
+        # 5
+        self.send_button.grid(row=5, columnspan=2)
 
     def send_data(self):
         """
@@ -62,6 +69,11 @@ class EntryGui(Gui):
             return
         self.name = self.name_entry.get()
         self.passwd = self.passwd_entry.get()
+        try:
+            self.timeout = int(self.timeout_entry.get())
+        except ValueError:
+            error("Neprávny časovač!")
+
         if valid_port(self.port_entry.get()):
             self.port = int(self.port_entry.get())
         else:

@@ -9,10 +9,11 @@ class App:
     the application.
     """
 
-    def __init__(self, name: str = ""):
+    def __init__(self, name: str = "", timer_timeout: int = 0):
         self.name = name
         self.port = 0
         self.passwd = ""
+        self.timer_timeout = timer_timeout
         self.db = None
 
     def start_app(self):
@@ -32,9 +33,10 @@ class App:
         self.name = entry.name
         self.passwd = entry.passwd
         self.port = entry.port
+        self.timer_timeout = entry.timeout
 
         # Start main APP/GUI
-        peer = Peer(self.name, self.port, self.passwd)
+        peer = Peer(self.name, self.port, self.passwd, self.timer_timeout)
         gui = MainGui(peer.send_file, self.name, self.port, peer.client.db)
         peer.client.confirm_func = gui.update_confirmation
         peer.client.available_func = gui.update_availability
@@ -49,13 +51,15 @@ class App:
         peer.client.connect('127.0.0.1', peer.server.port)
         peer.client.close_conn()
 
-    def send_file_background(self, hostname, port, file_path):
+    def send_file_background(self, hostname, port, file_path, passwd):
         """
         Send a file without creating a GUI
 
         :param str hostname: IP of the target
         :param int port: ort of the target
         :param str file_path: path to the file
+        :param str passwd: Db password
         """
-        peer = Peer(self.name, self.port)
-        peer.background_send(hostname, port, file_path, 10)
+
+        peer = Peer(self.name, self.port, passwd, self.timer_timeout)
+        peer.background_send(hostname, port, file_path, 3)

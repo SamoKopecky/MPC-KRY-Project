@@ -1,10 +1,10 @@
 import os
 import subprocess
-from time import sleep
+import time
 
+from time import sleep
 from .Client import Client
 from .Server import Server
-from ..db.Database import Database
 
 
 class Peer:
@@ -12,7 +12,7 @@ class Peer:
     Connect the server and client together to create the application's peer
     """
 
-    def __init__(self, name: str, port: int, passwd: str):
+    def __init__(self, name: str, port: int, passwd: str, timer_timeout: int = 0):
         # Listen for all connections
         self.server_address = '0.0.0.0'
         self.listen_port = port
@@ -20,6 +20,7 @@ class Peer:
         self.passwd = passwd
         self.retries = 3
         self.timeout = 2
+        self.timer_timeout = timer_timeout
         self.server: Server
         self.client = Client(self.name, self.passwd)
 
@@ -54,7 +55,8 @@ class Peer:
         if not self.is_alive(hostname, port):
             self.client.available_func(False)
             print("Creating a subprocess for sending a file")
-            command = f'{os.path.abspath("app.py")} -bg {hostname} {str(port)} {file_path} {self.name}'
+            print(self.timer_timeout)
+            command = f'{os.path.abspath("app.py")} -bg {hostname} {str(port)} {file_path} {self.name} {self.passwd} {self.timer_timeout}'
             subprocess.Popen(command, shell=True)
             # Stop sending file in this process
             return
@@ -92,9 +94,16 @@ class Peer:
         :param str file_path: File path of the sending file
         :param int loop_interval: Amount of seconds to wait before checking again
         """
+        start = int(time.time())
+        # TODO: Encrypt file and save it
         file_bytes, file_name = self.file_open_name(file_path)
         while not self.client.send_heartbeat(hostname, port, self.timeout):
+            if int(time.time() - start) > self.timer_timeout:
+                print("timed out")
+                # TODO: Remove encrypted file
+                exit(0)
             sleep(loop_interval)
+        # TODO: Decrypt file and send it
         self.client.connect(hostname, port)
         self.client.send_file(file_bytes, file_name)
         exit(0)

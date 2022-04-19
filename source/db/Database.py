@@ -6,7 +6,7 @@ from sqlcipher3 import dbapi2 as sqlcipher
 
 class Database:
     """
-    Handle all the operations regarding a database
+    Handle all the operations regarding a database, see :doc:`db`
     """
     id = 0
     users = "users"
@@ -48,7 +48,7 @@ class Database:
 
     def create_tables(self):
         """
-        Create table users and app
+        Create table users and app, see :doc:`db`
         """
         self.conn.execute("""CREATE TABLE IF NOT EXISTS users (
                                             id INTEGER PRIMARY KEY AUTOINCREMENT,

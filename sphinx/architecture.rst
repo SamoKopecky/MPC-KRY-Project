@@ -23,7 +23,7 @@ It is used to check whether the other peer is available by sending the `HEARTBEA
 
 Database
 --------
-TODO
+The database holds the paths to certificates and the private key of the user. The private key is encrypted using a password. It also holds the cached address of the peers that are manually entered. The database is also encrypted using a password with a python wrapper using the `sqlcipher <https://github.com/sqlcipher/sqlcipher>`_ binary. It is encrypted using **AES 256** with a key generated from a password which is entered by the user at the start of the application.
 
 MainGui
 -------

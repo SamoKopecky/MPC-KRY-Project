@@ -16,6 +16,7 @@ Welcome to KRY-Project's documentation!
    architecture
    flowcharts
    header
+   db
 
 Module index
 ------------

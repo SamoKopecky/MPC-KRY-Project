@@ -13,19 +13,19 @@ if [ ! -f root.key ] && [ ! -f root.crt ]; then
 fi
 
 create_cert() {
-
+  mkdir $NAME
 	echo "Generating private key for ${NAME}"
-	openssl genrsa -aes128 -passout pass:$PASSWORD -out $NAME.key 2048
+	openssl genrsa -aes256 -passout pass:$PASSWORD -out $NAME/$NAME.key 2048
 	echo "Generating certificate signing request for ${NAME}"
-	openssl req -passin pass:$PASSWORD -new -key $NAME.key -out $NAME.csr -subj "/C=CZ/O=MPC-KRY ${NAME}/OU=${NAME}/CN=${NAME}.cz"
+	openssl req -passin pass:$PASSWORD -new -key $NAME/$NAME.key -out $NAME/$NAME.csr -subj "/C=CZ/O=MPC-KRY ${NAME}/OU=${NAME}/CN=${NAME}.cz"
 	echo "Generating certificate for ${NAME}"
-	openssl x509 -req -days 365 -in $NAME.csr -CA root.crt -CAkey root.key -CAcreateserial -out $NAME.crt
+	openssl x509 -req -days 365 -in $NAME/$NAME.csr -CA root.crt -CAkey root.key -CAcreateserial -out $NAME/$NAME.crt
 
-	rm $NAME.csr root.srl
+	rm $NAME/$NAME.csr root.srl
 	
-	cp $NAME.crt $NAME-cert.pem
+	cp $NAME/$NAME.crt $NAME/$NAME-cert.pem
 	echo "Generating certificate chain for ${NAME}"
-	cat root.crt >> $NAME-cert.pem
+	cat root.crt >> $NAME/$NAME-cert.pem
 }
 
 create_cert $1

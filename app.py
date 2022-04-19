@@ -4,7 +4,6 @@ import sys
 from source.app.App import App
 
 if __name__ == '__main__':
-    # TODO: Update when DB is finished
     if len(sys.argv) > 1 and sys.argv[1] == "-bg":
         # Used for creating a background file sending process
         app = App(sys.argv[5], int(sys.argv[7]))

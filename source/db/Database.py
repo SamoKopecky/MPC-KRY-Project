@@ -20,8 +20,8 @@ class Database:
         self.password = password
         self.db_path = f'{self.dbs}{self.name}-database.db'
         self.root_cert = f'{self.certs}root.crt'
-        self.cert = f'{self.certs}{self.name}-cert.pem'
-        self.private_key = f'{self.certs}{self.name}.key'
+        self.cert = f'{self.certs}{self.name}{os.sep}{self.name}-cert.pem'
+        self.private_key = f'{self.certs}{self.name}{os.sep}{self.name}.key'
         self.conn = None
 
     def create_databases(self):
@@ -68,7 +68,8 @@ class Database:
         :param str addr: IP + port
         """
         sql = f'SELECT * FROM users WHERE addr="{addr}"'
-        if self.conn.execute(sql).fetchall()[0][1] == addr:
+        result = self.conn.execute(sql).fetchall()
+        if len(result) != 0 and result[0][1] == addr:
             return
         sql = f'INSERT INTO users (addr) VALUES ("{addr}")'
         self.conn.execute(sql)

@@ -256,7 +256,7 @@ class MainGui(Gui):
             self.available_label.configure(text="Ano", fg="#319e12")  # Green
         else:
             self.available_label.configure(text="Ne", fg="#ff0000")  # Red
-            self.unavailable_label.grid(row=4, columnspan=3)
+            self.unavailable_label.grid(row=4, columnspan=3, rowspan=2)
             self.unavailable_label.configure(text="Peer je nedostupný, posílaní souboru v pozadí")
 
     def start_receive(self, data_len, name):

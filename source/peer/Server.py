@@ -51,11 +51,11 @@ class Server(threading.Thread):
             initial_msg = self.current_conn.recv(2048)
             if self.receive_heartbeat(initial_msg):
                 continue
-            data_len, name, data = self.parse_header(initial_msg)
+            data_len, name, data, end = self.parse_header(initial_msg)
             # call gui init function, wait for button clicked to receive a file -- do this in tinker
             self.interface_gui_init(data_len, name)
             # for loop for handling percentage of file received
-            for done_percent in self.receive_body(self.file_location, self.current_conn, data_len, name, data):
+            for done_percent in self.receive_body(self.file_location, self.current_conn, data_len, name, data, end):
                 self.progress_handler(done_percent)
 
     def init_sock(self):
@@ -116,7 +116,7 @@ class Server(threading.Thread):
             return True
         return False
 
-    def receive_body(self, file_path, conn, file_len, file_name, file_data):
+    def receive_body(self, file_path, conn, file_len, file_name, file_data, data_end):
         """
         Handle actual file data receiving/saving, periodically yield data received %
 
@@ -129,13 +129,14 @@ class Server(threading.Thread):
         :param int file_len: Receiving file length
         :param bytes file_name: Name of the receiving file
         :param bytes file_data: Data of the receiving file
+        :param bool data_end: No more data is being sent
         """
-        raw_data = conn.recv(4096)
+        raw_data = bytes()
         original_len = file_len
         yielded_value = 0
         file = open(f"{file_path}{os.sep}{file_name.decode('UTF-8')}", 'wb')
         file.write(file_data)
-        while not self.is_data_end(raw_data):
+        while not data_end and not self.is_data_end(raw_data):
             try:
                 raw_data = conn.recv(4096)
             except (ConnectionResetError, TimeoutError):
@@ -162,15 +163,19 @@ class Server(threading.Thread):
 
         :param bytes data: initial received data
         :return: file length, file name, file data
-        :rtype: (int, bytes, bytes)
+        :rtype: (int, bytes, bytes, bool)
         """
+        end = False
         if self.flags.HEADER_START not in data:
             print("Error, wrong header")
             exit(1)
         header_end_index = data.index(self.flags.HEADER_END)
         header = data[len(self.flags.HEADER_START):header_end_index]
         file_data = data[header_end_index + len(self.flags.HEADER_END):]
+        if self.is_data_end(file_data):
+            end = True
+            file_data = file_data[:-len(self.flags.DATA_END)]
         # Decode from binary to decimal
         file_len = int(header[:64], 2)
         file_name = header[64:]
-        return file_len, file_name, file_data
+        return file_len, file_name, file_data, end

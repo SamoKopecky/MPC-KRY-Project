@@ -7,7 +7,7 @@ Class diagram
 
 Peer
 ----
-Peer is the main communication endpoint for the application. It is created from the **Client** and **Server** classes. It creates objects from those two classes. It is also responsible for handling the heartbeat messages that are used for checking availability. If the other peer that the file is being sent to is offline, **a background process is created** which will attempt to send the file on a specified interval. If the main windows is closed so is this process.
+Peer is the main communication endpoint for the application. It is created from the **Client** and **Server** classes. It creates objects from those two classes. It is also responsible for handling the heartbeat messages that are used for checking availability. If the other peer that the file is being sent to is offline, **a background process is created** which will attempt to send the file on a specified interval until a certain amount of time **specified by the user** passes. The file that is to be sent is **encrypted** until the receiving peer is ready. If the main windows is closed so is this process.
 
 Client
 ------

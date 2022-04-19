@@ -11,8 +11,10 @@ School project for BUTs MPC-KRY subject.
     - Debian/Ubuntu `apt-get install python3-tk`
     - Fedora/RHEL: `dnf install python3-tkinter`
 - Install dependencies by running `pip3 install -r requirements.py` in the project root directory
-- Run by launching the `app.py` file in the projects root directory
-    - Linux: `./app.py`
+- Run by launching the `app.py` file in the projects root directory with `./app.py`
+- The best way to run this on Windows is to
+  install [WSL (Windows Subsystem for Linux)](https://docs.microsoft.com/en-us/windows/wsl/install) or create a Linux
+  vritual machine
 
 ## How to create a virtual environment
 

@@ -24,7 +24,6 @@ class Server(threading.Thread):
         self.name = name
         self.flags = Flags()
         self.file_location = ""
-        self.certs = os.path.dirname(os.path.abspath(__file__)) + f'{os.sep}..{os.sep}..{os.sep}certs'
         self.progress_handler = progress_handler
         self.interface_gui_init = interface_gui_init
         self.secure_socket = socket.socket()
@@ -134,7 +133,7 @@ class Server(threading.Thread):
         raw_data = bytes()
         original_len = file_len
         yielded_value = 0
-        file = open(f"{file_path}{os.sep}{file_name.decode('UTF-8')}", 'wb')
+        file = open(f"{file_path}/{file_name.decode('UTF-8')}", 'wb')
         file.write(file_data)
         while not data_end and not self.is_data_end(raw_data):
             try:

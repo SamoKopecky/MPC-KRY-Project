@@ -13,5 +13,5 @@ class Gui(Label):
         super().__init__(parent)
         self.parent = parent
         self.parent.iconphoto(True, PhotoImage(
-            file=os.path.dirname(os.path.abspath(__file__)) + f'{os.sep}..{os.sep}..{os.sep}vut.png')
+            file=os.path.dirname(os.path.abspath(__file__)) + '/../../vut.png')
                               )

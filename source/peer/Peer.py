@@ -25,8 +25,7 @@ class Peer:
         self.retries = 3
         self.timeout = 10
         self.timer_timeout = timer_timeout
-        self.encrypted_files = os.path.dirname(
-            os.path.abspath(__file__)) + f'{os.sep}..{os.sep}..{os.sep}encrypted_files'
+        self.encrypted_files = os.path.dirname(os.path.abspath(__file__)) + f'/../../encrypted_files'
         self.server: Server
         self.client = Client(self.name, self.passwd)
 
@@ -115,7 +114,7 @@ class Peer:
             os.mkdir(self.encrypted_files)
 
         # Encrypt and save
-        encrypted_file_path = f'{self.encrypted_files}{os.sep}{file_name}_{start}'
+        encrypted_file_path = f'{self.encrypted_files}/{file_name}_{start}'
         encrypted_file = open(encrypted_file_path, 'wb')
         encrypted_file.write(self.aes_encrypt(cipher, file_bytes))
         encrypted_file.close()

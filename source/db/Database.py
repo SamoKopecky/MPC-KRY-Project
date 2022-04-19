@@ -13,15 +13,15 @@ class Database:
     app = "app"
 
     def __init__(self, user_name: str, password: str):
-        self.root_folder = os.path.dirname(os.path.abspath(__file__)) + f'{os.sep}..{os.sep}..{os.sep}'
-        self.certs = f'{self.root_folder}certs{os.sep}'
-        self.dbs = f'{self.root_folder}dbs{os.sep}'
+        self.root_folder = os.path.dirname(os.path.abspath(__file__)) + f'/../../'
+        self.certs = f'{self.root_folder}certs/'
+        self.dbs = f'{self.root_folder}dbs/'
         self.name = user_name
         self.password = password
         self.db_path = f'{self.dbs}{self.name}-database.db'
         self.root_cert = f'{self.certs}root.crt'
-        self.cert = f'{self.certs}{self.name}{os.sep}{self.name}-cert.pem'
-        self.private_key = f'{self.certs}{self.name}{os.sep}{self.name}.key'
+        self.cert = f'{self.certs}{self.name}/{self.name}-cert.pem'
+        self.private_key = f'{self.certs}{self.name}/{self.name}.key'
         self.conn = None
 
     def create_databases(self):

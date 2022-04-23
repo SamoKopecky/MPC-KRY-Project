@@ -56,7 +56,7 @@ class App:
         Send a file without creating a GUI
 
         :param str hostname: IP of the target
-        :param int port: ort of the target
+        :param int port: Port of the target
         :param str file_path: path to the file
         :param str passwd: Db password
         """

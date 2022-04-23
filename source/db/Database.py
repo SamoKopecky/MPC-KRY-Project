@@ -35,7 +35,7 @@ class Database:
             os.mkdir(self.dbs)
         self.connect_to_db()
         self.create_tables()
-        if not os.path.exists(self.cert) or not os.path.exists(self.cert) or not os.path.exists(self.private_key):
+        if not os.path.exists(self.cert) or not os.path.exists(self.private_key):
             self.create_certs()
             self.insert_app(self.root_cert, self.private_key, self.cert)
             return
@@ -43,6 +43,9 @@ class Database:
             self.insert_app(self.root_cert, self.private_key, self.cert)
 
     def connect_to_db(self):
+        """
+        Create a connection to the database and unlock it
+        """
         self.conn = sqlcipher.connect(self.db_path)
         self.conn.execute(f'pragma key="{self.password}"')
 
@@ -93,7 +96,7 @@ class Database:
         """
         Select everything from a table
 
-        :param str table_name:
+        :param str table_name: Table name
         """
         sql = f"SELECT * FROM {table_name}"
         result = self.conn.execute(sql).fetchall()

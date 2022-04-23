@@ -60,7 +60,6 @@ class Peer:
         if not self.is_alive(hostname, port):
             self.client.available_func(False)
             print("Creating a subprocess for sending a file")
-            print(self.timer_timeout)
             command = f'{os.path.abspath("app.py")} -bg {hostname} {str(port)} {file_path} {self.name} {self.passwd} {self.timer_timeout}'
             subprocess.Popen(command, shell=True)
             # Stop sending file in this process

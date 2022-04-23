@@ -19,6 +19,11 @@ School project for BUTs MPC-KRY subject.
 - Create a virtual environment with `python3 -m venv path/to/myenv`
 - Start using venv with `source path/to/myenv/bin/activate`
 
+# Installing sqlcipher
+
+- Optionally the script `install_sqlcipher.sh` can be used to install the `sqlcipher` binary, which can be used to
+  check the contents of the encrypted database files
+
 # Documentation
 
 - You can browse the documentation either in code or by visiting [this](http://172.105.249.59:6060) website

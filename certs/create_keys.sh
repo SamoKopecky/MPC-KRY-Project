@@ -6,7 +6,6 @@ CERTS_DIR=$3
 
 cd $CERTS_DIR
 
-echo $PASSWORD
 if [ ! -f root.key ] && [ ! -f root.crt ]; then
 	echo "No root certificate and key found, generating them"
 	openssl req -x509 -newkey rsa:2048 -keyout root.key -out root.crt -days 365 -nodes -subj "/C=CZ/O=MPC-KRY root/OU=MPC-KRY-R/CN=mpc-kry.cz"

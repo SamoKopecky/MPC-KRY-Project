@@ -13,6 +13,7 @@ School project for BUTs MPC-KRY subject.
 - Install dependencies by running `pip3 install -r requirements.py` in the project root directory
 - Run by launching the `app.py` file in the projects root directory with `./app.py`
 - The best way to run this on Windows is to install a Linux virtual machine
+- `test_pdf.pdf` and `test_text.txt` can be used as test files
 
 ## How to create a virtual environment
 

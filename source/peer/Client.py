@@ -21,7 +21,11 @@ class Client:
         self.secure_sock = socket.socket()
         self.context = None
         self.db = init_db(self.name, self.passwd)
-        self.init_sock()
+        try:
+            self.init_sock()
+        except ssl.SSLError:
+            print("Wrong password to private key")
+            exit(1)
         # Initialize to do nothing for now
         self.confirm_func = lambda: None
         self.available_func = lambda x: None

@@ -60,11 +60,6 @@ class MainGui(Gui):
         self.db = db
         self.refresh_list()
 
-        # Temporary, delete later!
-        self.file_path_entry.insert(0, "/home/samo/receive")
-        self.save_dir_entry.insert(0, "/home/samo/send/test.txt")
-        self.manual_address_entry.insert(0, "127.0.0.1:")
-
     def create_layout(self):
         """
         Set the grid layout for all the gui elements

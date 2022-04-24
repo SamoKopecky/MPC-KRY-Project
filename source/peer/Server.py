@@ -40,7 +40,11 @@ class Server(threading.Thread):
         Also handle heartbeat messages.
         """
         self.db = init_db(self.name, self.passwd)
-        self.init_sock()
+        try:
+            self.init_sock()
+        except ssl.SSLError:
+            print("Wrong password to private key")
+            exit(1)
         while not self.stop_loop.is_set():
 
             self.start_listening()

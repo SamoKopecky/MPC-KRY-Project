@@ -122,7 +122,7 @@ class Peer:
         # Wait for other peer
         while not self.client.send_heartbeat(hostname, port, self.timeout):
             if int(time.time() - start) >= self.timer_timeout:
-                print("timed out")
+                print("timed out, stopping background sending")
                 os.remove(encrypted_file_path)
                 exit(0)
             sleep(loop_interval)

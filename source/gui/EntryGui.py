@@ -29,12 +29,6 @@ class EntryGui(Gui):
 
         self.create_layout()
 
-        # Temporary, delete later!
-        self.name_entry.insert(0, 'alice')
-        self.passwd_entry.insert(0, 'test')
-        self.port_entry.insert(0, '8888')
-        self.timeout_entry.insert(0, '30')
-
     def create_layout(self):
         """
         Set the grid layout for all the gui elements
